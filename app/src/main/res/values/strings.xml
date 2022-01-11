@@ -3,5 +3,13 @@
     <string name="authenticationPicture">Authentication picture</string>
 
 
-    <string name="login">Sign in with Google</string>
+    <string name="login_google">Sign in with Google</string>
+    <string name="login_facebook">Sign in with Facebook</string>
+    <string name="error_authentication_canceled">Authentication canceled</string>
+    <string name="error_no_internet">No internet</string>
+    <string name="error_unknown_error">Unknown error</string>
+    <string name="connection_succeed">Connection succeed</string>
+
+    <string name="facebook_application_id">205701438038321</string>
+    <string name="fb_login_protocol_scheme">fb205701438038321</string>
 </resources>
