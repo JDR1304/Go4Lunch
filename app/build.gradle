@@ -52,7 +52,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
 
     //Facebook
-    implementation 'com.facebook.android:facebook-android-sdk:5.13.0'
+    implementation 'com.facebook.android:facebook-android-sdk:[8,9)'
 
     //custom google button
     implementation 'com.shobhitpuri.custombuttons:google-signin:1.0.0'
