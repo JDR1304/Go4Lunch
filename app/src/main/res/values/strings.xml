@@ -13,6 +13,9 @@
 
     <string name="facebook_application_id">603656987391009</string>
     <string name="fb_login_protocol_scheme">fb603656987391009</string>
+    <string name="title_map_view">Map View</string>
+    <string name="title_list_view">List View</string>
+    <string name="title_workmates">Workmates</string>
 
 
 </resources>
