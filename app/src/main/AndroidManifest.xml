@@ -3,6 +3,8 @@
     package="com.example.go4lunch">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!--Allows to access to the external storage on the mobile-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +16,8 @@
 
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:theme="@style/Theme.Go4Lunch.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

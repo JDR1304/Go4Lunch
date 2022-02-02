@@ -13,9 +13,28 @@
 
     <string name="facebook_application_id">603656987391009</string>
     <string name="fb_login_protocol_scheme">fb603656987391009</string>
+
+    <!--Bottom View Navigation-->
     <string name="title_map_view">Map View</string>
     <string name="title_list_view">List View</string>
     <string name="title_workmates">Workmates</string>
+
+    <!--Drawer View Navigation-->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="nav_header_drawer_desc">drawer description</string>
+    <string name="nav_header_title">Go4Lunch</string>
+    <string name="nav_header_drawer_email">drawer email</string>
+    <string name="nav_header_drawer_name">drawer name</string>
+
+    <string name="menu_your_lunch">YOUR LUNCH</string>
+    <string name="menu_settings">SETTINGS</string>
+    <string name="menu_log_out">LOGOUT</string>
+
+    <string name="action_seek">research</string>
+    <string name="info_no_username_found">no username found</string>
+    <string name="info_no_email_found">no email found</string>
 
 
 </resources>
