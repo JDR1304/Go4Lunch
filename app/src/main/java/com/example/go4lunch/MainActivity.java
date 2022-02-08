@@ -1,7 +1,12 @@
 package com.example.go4lunch;
 
+
+
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -12,29 +17,27 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
 import com.example.go4lunch.manager.UserManager;
-import com.example.go4lunch.repository.UserRepository;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -43,34 +46,31 @@ public class MainActivity extends AppCompatActivity {
     private static final int RC_SIGN_IN = 123;
     private AppBarConfiguration mAppBarConfiguration;
 
+    //Toolbar custom
+    private Toolbar toolbar;
+
     //Drawer Variable
     private ImageView headerDrawerImage;
     private TextView headerDrawerName;
     private TextView headerDrawerEmail;
 
+    private ActionBarDrawerToggle toggle;
 
     private UserManager userManager = UserManager.getInstance();
     FirebaseUser user;
-
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        setSupportActionBar(binding.bottomNavigation.toolbar);
-
-        //drawerBindingView();
-
+        configureToolbar();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkIfUserLogged();
-        //uiDrawerNavigation();
-        //uiBottomNavigation();
 
     }
     private void checkIfUserLogged(){
@@ -81,15 +81,22 @@ public class MainActivity extends AppCompatActivity {
                 uiDrawerNavigation();
                 uiBottomNavigation();
 
-                setProfilUserData(user);
+                setProfileUserDataInTheHeader(user);
                 if(user.getPhotoUrl() != null){
-                    setProfilePicture(user.getPhotoUrl());
+                    setProfilePictureInTheHeader(user.getPhotoUrl());
                 }
             }else{
                 startSignInActivity();
             }
 
     }
+    //Configure Toolbar custom without Title
+    private void configureToolbar(){
+        this.toolbar = binding.bottomNavigation.toolbarCustom;
+        setSupportActionBar(binding.bottomNavigation.toolbarCustom);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+    }
+
 
     private void drawerBindingView() {
         View headerView = binding.navViewDrawer.getHeaderView(0);
@@ -99,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         headerDrawerEmail = headerBinding.textViewHeaderDrawerEmail;
     }
 
-    private void setProfilUserData(FirebaseUser user){
+    private void setProfileUserDataInTheHeader(FirebaseUser user){
         //Get email & username from User
         String email = TextUtils.isEmpty(user.getEmail()) ? getString(R.string.info_no_email_found) : user.getEmail();
         String username = TextUtils.isEmpty(user.getDisplayName()) ? getString(R.string.info_no_username_found) : user.getDisplayName();
@@ -109,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         headerDrawerEmail.setText(email);
     }
 
-    private void setProfilePicture(Uri profilePictureUrl){
+    private void setProfilePictureInTheHeader(Uri profilePictureUrl){
         Glide.with(this)
                 .load(profilePictureUrl)
                 .apply(RequestOptions.circleCropTransform())
@@ -117,8 +124,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void uiDrawerNavigation() {
-
+        //Tie Toolbar custom and the drawerLayout
         DrawerLayout drawer = binding.drawerLayout;
+        toggle = new ActionBarDrawerToggle(this,drawer,R.string.navigation_drawer_open,R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
         NavigationView navigationView = binding.navViewDrawer;
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -128,8 +139,35 @@ public class MainActivity extends AppCompatActivity {
                 .build();
         NavController navDrawerController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navDrawerController, mAppBarConfiguration);
+        //Bind NavGraph with Navigation Drawer
         NavigationUI.setupWithNavController(navigationView, navDrawerController);
 
+        // code ajouter pour la gestion de mon menu
+        navigationView.setNavigationItemSelectedListener(menuItem -> {
+            switch (menuItem.getItemId()) {
+                case R.id.nav_logout:
+                    Toast.makeText(getApplicationContext(), "logout", Toast.LENGTH_SHORT).show();
+                    userManager.signOut(this).addOnSuccessListener(aVoid -> {
+                        startSignInActivity();
+                    });
+                    return true;
+                case R.id.nav_lunch:
+                    Toast.makeText(getApplicationContext(), "Lunch", Toast.LENGTH_SHORT).show();
+                    //This is for closing the drawer after acting on it
+                    drawer.closeDrawer(GravityCompat.START);
+                    return true;
+                case R.id.nav_settings:
+                    Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
+                    //This is for closing the drawer after acting on it
+                    drawer.closeDrawer(GravityCompat.START);
+                    return true;
+            }
+            //This is for maintaining the behavior of the Navigation view
+            NavigationUI.onNavDestinationSelected(menuItem,navDrawerController);
+
+            drawer.closeDrawer(GravityCompat.START);
+            return true;
+        });
     }
 
     private void uiBottomNavigation() {
@@ -207,4 +245,6 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+
 }

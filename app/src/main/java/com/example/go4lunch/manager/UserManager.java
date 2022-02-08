@@ -9,6 +9,8 @@ import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UserManager {
 
@@ -40,6 +42,10 @@ public class UserManager {
 
     public Task<Void> signOut(Context context){
         return userRepository.signOut(context);
+    }
+
+    public CollectionReference getUsersCollection() {
+        return userRepository.getUsersCollection();
     }
 
     public void createUser(){

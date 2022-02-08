@@ -35,6 +35,8 @@
     <string name="action_seek">research</string>
     <string name="info_no_username_found">no username found</string>
     <string name="info_no_email_found">no email found</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

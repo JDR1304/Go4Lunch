@@ -13,8 +13,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.go4lunch.databinding.FragmentMapViewBinding;
+import com.google.android.gms.maps.OnMapReadyCallback;
 
-public class MapViewFragment extends Fragment {
+public class MapViewFragment extends Fragment implements OnMapReadyCallback {
 
     private MapViewViewModel mapViewViewModel;
     private FragmentMapViewBinding binding;

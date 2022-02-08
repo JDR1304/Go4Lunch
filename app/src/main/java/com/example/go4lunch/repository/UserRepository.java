@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UserRepository {
 
-    //private static final String UserId = "userId";
+
     private static final String COLLECTION_NAME = "users";
     private static final String USERNAME_FIELD = "username";
     private static final String EMAIL_FIELD = "useremail";
@@ -52,7 +52,7 @@ public class UserRepository {
         return AuthUI.getInstance().delete(context);
     }
 
-    private CollectionReference getUsersCollection() {
+    public CollectionReference getUsersCollection() {
         return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
     }
 
@@ -69,12 +69,8 @@ public class UserRepository {
             User userToCreate = new User(uid,useremail, username,urlPicture);
 
             Task<DocumentSnapshot> userData = getUserData();
-            // If the user already exist in Firestore, we get his data (isMentor)
+            // If the user already exist in Firestore, we get his data
             userData.addOnSuccessListener(documentSnapshot -> {
-                /*if (documentSnapshot.contains(IS_MENTOR_FIELD)){
-                    userToCreate.setIsMentor((Boolean)
-                            documentSnapshot.get(IS_MENTOR_FIELD));
-                }*/
                 this.getUsersCollection().document(uid).set(userToCreate);
             });
 

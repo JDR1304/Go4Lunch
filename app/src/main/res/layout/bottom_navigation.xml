@@ -17,7 +17,7 @@
         >
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_custom"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -36,19 +36,9 @@
         app:menu="@menu/bottom_nav_menu" />
 
     <include
-        android:id="@+id/include"
+        android:id="@+id/content_main_fragment"
         layout="@layout/content_main"
         tools:layout_editor_absoluteY="56dp" />
 
-    <!--fragment
-        android:id="@+id/nav_host_fragment_activity_main"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_marginBottom="?attr/actionBarSize"
-        app:defaultNavHost="true"
-        android:layout_gravity="center"
-        app:navGraph="@navigation/mobile_navigation" /-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
