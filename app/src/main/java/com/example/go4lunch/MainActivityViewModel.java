@@ -30,13 +30,10 @@ public class MainActivityViewModel extends ViewModel {
 
     public RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
 
-    public Location location = new Location("");
-
-    // Permet de récuperer la location dans le map
     public MutableLiveData<Location> getLocation() {
         return locationLiveData;
     }
-    // Location prise dans mainActivité
+
     public void setLocation(Location location) {
         this.locationLiveData.postValue(location);
     }
@@ -45,11 +42,4 @@ public class MainActivityViewModel extends ViewModel {
         return restaurantRepository.getRestaurants(locationLiveData.getValue());
     }
 
-   /* public void setLocationFromMapView(Location location){
-        this.location = location;
-    }
-
-    public Location getLocationFromMapView(){
-        return location;
-    }*/
 }

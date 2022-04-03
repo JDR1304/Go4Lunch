@@ -2,6 +2,7 @@ package com.example.go4lunch.ui.listview;
 
 
 
+import android.content.Intent;
 import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import java.util.List;
 
 public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder> {
 
+    private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
     List<Result> restaurantList;
     MainActivityViewModel mainActivityViewModel;
 
@@ -46,6 +48,16 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         holder.address.setText(restaurant.getVicinity());
         getOpenHours(holder, restaurant);
         getRestaurantPicture(holder, restaurant);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Intent intent = new Intent(holder.itemView.getContext(), ProfilActivity.class);
+                String id = restaurant.getPlaceId();
+                intent.putExtra(RESTAURANT_ID_KEY, id);
+                holder.itemView.getContext().startActivity(intent);*/
+            }
+        });
     }
 
     private void getRestaurantPicture(@NonNull ViewHolder holder, Result restaurant) {

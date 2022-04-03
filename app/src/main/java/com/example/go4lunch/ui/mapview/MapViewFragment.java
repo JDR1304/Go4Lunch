@@ -9,13 +9,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.modelApiNearby.Result;
+import com.example.go4lunch.ui.listview.ListViewRecyclerViewAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -24,6 +30,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
 
 
 public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener,
@@ -55,13 +62,10 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mainActivityViewModel.getLocation().observe(this, new Observer<Location>() {
             @Override
             public void onChanged(Location location) {
-                //mainActivityViewModel.setLocationFromMapView(location);
                 MapViewFragment.this.location = location;
                 mapFragment.getMapAsync(MapViewFragment.this);
             }
         });
-
-
     }
 
     @SuppressLint("MissingPermission")
@@ -71,11 +75,42 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
-        // Add a marker in Sydney and move the camera
+        // Add a marker at current place and move the camera
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
-        marker = mMap.addMarker(new MarkerOptions().position(currentPosition).title("Marker in current position"));
+        marker = mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
-        Log.e(TAG, "In onMapReady latitude:  " + location.getLatitude() + " longitude : " + location.getLongitude());
+        getRestaurant();
+        markerClickListener();
+    }
+
+    public void getRestaurant() {
+
+        // Get Users From Random API
+        Observer<List<Result>> results = new Observer<List<Result>>() {
+            @Override
+            public void onChanged(List<Result> results) {
+                results = mainActivityViewModel.getRestaurants().getValue();
+                LatLng restaurantPosition;
+                for (int i = 0; i<results.size(); i++){
+                    restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
+                    marker = mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
+                }
+            }
+        };
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getRestaurants().observe(this, results);
+    }
+
+    public void markerClickListener() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+            @Override
+            public boolean onMarkerClick(Marker arg0) {
+                Toast.makeText(getActivity(), "marker ", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+        });
     }
 
     @Override
