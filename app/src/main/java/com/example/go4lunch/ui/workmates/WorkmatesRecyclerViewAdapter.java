@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.R;
-import com.example.go4lunch.manager.UserManager;
 import com.example.go4lunch.model.User;
 
 import java.util.List;
@@ -20,14 +19,10 @@ import java.util.List;
 
 public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<WorkmatesRecyclerViewAdapter.ViewHolder> {
 
-    UserManager userManager = UserManager.getInstance();
-    List <User> users;
-    //= (List<User>) userManager.getUsersCollection().get();
-
-
+    private List<User> users;
 
     public WorkmatesRecyclerViewAdapter(List<User> users) {
-        this.users= users;
+        this.users = users;
     }
 
     @NonNull
