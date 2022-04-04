@@ -2,7 +2,7 @@ package com.example.go4lunch.ui.listview;
 
 
 
-import android.content.Intent;
+
 import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
