@@ -8,7 +8,7 @@
     >
 
     <TextView
-        android:id="@+id/restaurant_name"
+        android:id="@+id/restaurant_details_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="restaurant name"
@@ -36,10 +36,9 @@
         android:maxLines="1"
         android:text="address"
         app:layout_constraintBottom_toTopOf="@+id/open_hours"
-        app:layout_constraintEnd_toEndOf="@+id/distance"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintEnd_toStartOf="@+id/distance"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/restaurant_name" />
+        app:layout_constraintTop_toBottomOf="@+id/restaurant_details_name" />
 
     <TextView
         android:id="@+id/open_hours"
@@ -61,4 +60,63 @@
         app:layout_constraintStart_toEndOf="@+id/distance"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageView
+        android:id="@+id/listview_coworker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/restaurant_imageView"
+        app:layout_constraintStart_toStartOf="@+id/distance"
+        app:layout_constraintTop_toBottomOf="@+id/distance"
+        app:layout_constraintVertical_bias="0.3"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/ic_baseline_perm_identity_24" />
+
+    <ImageView
+        android:id="@+id/listview_star1"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/restaurant_imageView"
+        app:layout_constraintTop_toBottomOf="@+id/listview_coworker"
+        app:srcCompat="@drawable/ic_baseline_star_24"
+        android:visibility="invisible"
+        app:tint="@color/quantum_amber500"/>
+
+    <ImageView
+        android:id="@+id/listview_star2"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/listview_star1"
+        app:srcCompat="@drawable/ic_baseline_star_24"
+        android:visibility="invisible"
+        app:tint="@color/quantum_amber500"/>
+
+    <ImageView
+        android:id="@+id/listview_star3"
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/listview_star2"
+        app:layout_constraintTop_toBottomOf="@+id/listview_coworker"
+        app:srcCompat="@drawable/ic_baseline_star_24"
+        android:visibility="invisible"
+        app:tint="@color/quantum_amber500"/>
+
+    <TextView
+        android:id="@+id/listview_coworker_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="(0)"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/listview_star1"
+        app:layout_constraintEnd_toStartOf="@+id/restaurant_imageView"
+        app:layout_constraintStart_toEndOf="@+id/listview_coworker"
+        app:layout_constraintTop_toBottomOf="@+id/distance" />
 </androidx.constraintlayout.widget.ConstraintLayout>

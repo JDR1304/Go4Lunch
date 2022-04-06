@@ -2,7 +2,9 @@ package com.example.go4lunch.ui.mapview;
 
 
 import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,9 +20,11 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.example.go4lunch.MainActivity;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.modelApiNearby.Result;
+import com.example.go4lunch.ui.RestaurantDetails;
 import com.example.go4lunch.ui.listview.ListViewRecyclerViewAdapter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,12 +41,15 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         GoogleMap.OnMyLocationClickListener,
         OnMapReadyCallback {
 
+    private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private MainActivityViewModel mainActivityViewModel;
     private static final int DEFAULT_ZOOM = 15;
     private Marker marker;
     private Location location;
+    private List<Result> restaurants;
+    private String restaurantId;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -76,11 +83,11 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         // Add a marker at current place and move the camera
+        getRestaurant();
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
         marker = mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
-        getRestaurant();
-        markerClickListener();
+
     }
 
     public void getRestaurant() {
@@ -90,27 +97,37 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
             @Override
             public void onChanged(List<Result> results) {
                 results = mainActivityViewModel.getRestaurants().getValue();
+                restaurants = results;
                 LatLng restaurantPosition;
-                for (int i = 0; i<results.size(); i++){
+                for (int i = 0; i < results.size(); i++) {
                     restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
                     marker = mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
+
                 }
+                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                    @Override
+                    public boolean onMarkerClick(Marker arg0) {
+                        for (int i = 0; i < restaurants.size(); i++) {
+                            if (restaurants.get(i).getName().equals(arg0.getTitle())) {
+                                restaurantId = restaurants.get(i).getPlaceId();
+                            }
+
+                        }
+                        Intent intent = new Intent(getContext(), RestaurantDetails.class);
+                        Bundle param = new Bundle();
+                        param.putString(RESTAURANT_ID_KEY, restaurantId);
+                        Log.e(TAG, "onClick: " + param);
+                        intent.putExtras(param);
+                        startActivity(intent);
+                        return true;
+                    }
+
+                });
             }
         };
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
         mainActivityViewModel.getRestaurants().observe(this, results);
-    }
-
-    public void markerClickListener() {
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-            @Override
-            public boolean onMarkerClick(Marker arg0) {
-                Toast.makeText(getActivity(), "marker ", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-
-        });
     }
 
     @Override
@@ -127,7 +144,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     @Override
     public void onDestroy() {
         super.onDestroy();
-        marker.remove();
+        //marker.remove();
     }
 }
 

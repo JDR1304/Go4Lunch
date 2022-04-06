@@ -40,7 +40,6 @@ public class RestaurantRepository {
 
     public MutableLiveData<List<Result>> getRestaurants(Location location) {
 
-        Log.e(TAG, "getRestaurants: "+location.getLatitude());
         if (location!= null && (restaurantsList.getValue() == null || oldLocation == null || location.distanceTo(oldLocation) > DISTANCE_MIN_FOR_REFRESH_DATA)) {
 
             oldLocation = location;
