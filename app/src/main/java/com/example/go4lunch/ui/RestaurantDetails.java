@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -61,9 +62,11 @@ public class RestaurantDetails extends AppCompatActivity {
         restaurantBooking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //restaurantBooking.setBackgroundColor(Color.parseColor("#337536"));
-                restaurantBooking.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#337536")));
+                if (restaurantBooking.getBackgroundTintList().equals(ColorStateList.valueOf(Color.WHITE))) {
+                    restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
 
+                }
+                else restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
             }
         });
 
