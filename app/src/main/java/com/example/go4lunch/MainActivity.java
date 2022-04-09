@@ -11,6 +11,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -37,6 +40,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
 import com.example.go4lunch.repository.UserRepository;
+import com.example.go4lunch.ui.RestaurantDetails;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -57,7 +61,7 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
-    private static final int REQUEST_CHECK_SETTINGS = 99;
+    private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
     private ActivityMainBinding binding;
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -93,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         configureToolbar();
-        Log.e(TAG, "onCreate: before update GPS");
 
     }
 
@@ -103,6 +106,12 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         checkIfUserLogged();
         updateGps();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG, "onDestroy: In Main Activity " );
     }
 
     private void checkIfUserLogged() {
@@ -167,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_lunch, R.id.nav_settings, R.id.navigation_map_view, R.id.navigation_list_view, R.id.navigation_workmates)
+                 R.id.navigation_map_view, R.id.navigation_workmates,R.id.navigation_list_view)
                 .setOpenableLayout(drawer)
                 .build();
         NavController navDrawerController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
@@ -185,9 +194,25 @@ public class MainActivity extends AppCompatActivity {
                     });
                     return true;
                 case R.id.nav_lunch:
-                    Toast.makeText(getApplicationContext(), "Lunch", Toast.LENGTH_SHORT).show();
+
+                    Observer <String> restaurantIdKey = new Observer<String>() {
+                        @Override
+                        public void onChanged(String restaurantIdKey) {
+                           /* Bundle arg = new Bundle();
+                            arg.putString(RESTAURANT_ID_KEY, restaurantIdKey);
+                            Fragment fragment = RestaurantDetails.getInstance();
+                            fragment.setArguments(arg);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.nav_host_fragment_content_main, fragment)
+                                    .addToBackStack(null)
+                                    .commit();*/
+                        }
+                    };
+                    mainActivityViewModel.getRestaurantBooking().observe(this, restaurantIdKey);
+
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
+
                     return true;
                 case R.id.nav_settings:
                     Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();

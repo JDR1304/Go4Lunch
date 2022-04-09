@@ -24,9 +24,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch">
-        <activity
-            android:name=".ui.RestaurantDetails"
-            android:exported="false" />
         <!-- Allows to access to map API on the mobile -->
         <!--
             The API key for Google Maps-based APIs is defined as a string resource.

@@ -1,13 +1,10 @@
 package com.example.go4lunch.network;
 
-import static android.content.ContentValues.TAG;
 
 import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.example.go4lunch.modelApiNearby.Restaurant;
 

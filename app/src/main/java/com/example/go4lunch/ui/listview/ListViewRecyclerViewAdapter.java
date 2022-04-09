@@ -5,7 +5,6 @@ package com.example.go4lunch.ui.listview;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,10 +15,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.go4lunch.MainActivity;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.modelApiNearby.Result;
@@ -27,18 +27,20 @@ import com.example.go4lunch.ui.RestaurantDetails;
 
 import java.util.List;
 
-public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder> {
+public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder>  {
 
     private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
     List<Result> restaurantList;
     MainActivityViewModel mainActivityViewModel;
     int numberOfCoworker = 4;
     int i = 40;
+    ListViewFragment.RetrieveIdRestaurant listener;
 
 
-    public ListViewRecyclerViewAdapter(List<Result> restaurantList, MainActivityViewModel viewModel) {
+    public ListViewRecyclerViewAdapter(List<Result> restaurantList, MainActivityViewModel viewModel, ListViewFragment.RetrieveIdRestaurant listener) {
         this.restaurantList = restaurantList;
         this.mainActivityViewModel = viewModel;
+        this.listener = listener;
     }
 
     @NonNull
@@ -79,20 +81,13 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
 
         }
 
-
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity mainActivity = (MainActivity)v.getContext();
-                Intent intent = new Intent(mainActivity, RestaurantDetails.class);
-                Bundle param = new Bundle();
-                param.putString(RESTAURANT_ID_KEY, restaurant.getPlaceId());
-                Log.e(TAG, "onClick: "+param );
-                intent.putExtras(param);
-                mainActivity.startActivity(intent);
-
+                listener.onClickItem(restaurant.getPlaceId());
             }
         });
+
     }
 
     private void getRestaurantPicture(@NonNull ViewHolder holder, Result restaurant) {
@@ -137,6 +132,7 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         return restaurantList.size();
     }
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
 
@@ -163,9 +159,6 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
             star1 = view.findViewById(R.id.listview_star1);
             star2 = view.findViewById(R.id.listview_star2);
             star3 = view.findViewById(R.id.listview_star3);
-
-
-
         }
     }
 
