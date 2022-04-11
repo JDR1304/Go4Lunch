@@ -2,6 +2,7 @@ package com.example.go4lunch.repository;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
@@ -38,7 +39,7 @@ public class RestaurantRepository {
         }
     }
 
-    public MutableLiveData<List<Result>> getRestaurants(Location location) {
+    public MutableLiveData<List<Result>> getRestaurants(Location location, String apiKey) {
 
         if (location!= null && (restaurantsList.getValue() == null || oldLocation == null || location.distanceTo(oldLocation) > DISTANCE_MIN_FOR_REFRESH_DATA)) {
 
@@ -56,7 +57,7 @@ public class RestaurantRepository {
                 public void onFailure() {
                     Log.e(TAG, "onFailure **********************: ");
                 }
-            }, location);
+            }, location, apiKey);
         }
         return restaurantsList;
     }

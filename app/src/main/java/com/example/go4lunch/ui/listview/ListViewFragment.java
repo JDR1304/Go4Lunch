@@ -2,6 +2,7 @@ package com.example.go4lunch.ui.listview;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,6 +37,7 @@ public class ListViewFragment extends Fragment {
     private RecyclerView recyclerView;
     private ListViewRecyclerViewAdapter listViewRecyclerViewAdapter;
     private ListViewFragmentDirections.ActionNavigationListViewToNavigationRestaurantDetails action;
+    private Context context = getContext();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,

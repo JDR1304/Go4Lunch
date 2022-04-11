@@ -1,7 +1,7 @@
 package com.example.go4lunch.ui;
 
-import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -12,8 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +44,7 @@ public class RestaurantDetails extends Fragment {
     private static RestaurantDetails instance;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
 
+
     public static RestaurantDetails getInstance() {
         if(instance== null)
         instance= new RestaurantDetails();
@@ -71,6 +73,8 @@ public class RestaurantDetails extends Fragment {
 
         getRestaurantList();
         initRestaurant(view);
+
+
 
         if (restaurantPlaceId.equals(mainActivityViewModel.getRestaurantBooking().getValue())){
             restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -126,7 +130,6 @@ public class RestaurantDetails extends Fragment {
             @Override
             public void onChanged(List<Result> results) {
                 restaurantList = results;
-                Log.e(TAG, "onChanged: in restaurantDetail" + results.size());
             }
         };
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
@@ -134,9 +137,7 @@ public class RestaurantDetails extends Fragment {
     }
 
     public Result getRestaurantById(String placeId) {
-        //Log.e(TAG, "getRestaurantById: "+placeId );
         for (int i = 0; i < restaurantList.size(); i++) {
-//            Log.e(TAG, "getRestaurantById: "+restaurantList.size() );
             if (placeId.equals(restaurantList.get(i).getPlaceId())) {
                 return restaurantList.get(i);
             }
@@ -157,5 +158,4 @@ public class RestaurantDetails extends Fragment {
                     .into(this.restaurantImageView);
         }
     }
-
 }

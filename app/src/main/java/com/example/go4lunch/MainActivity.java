@@ -21,6 +21,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 
 import android.content.pm.PackageManager;
@@ -41,6 +42,7 @@ import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
 import com.example.go4lunch.repository.UserRepository;
 import com.example.go4lunch.ui.RestaurantDetails;
+import com.example.go4lunch.ui.mapview.MapViewFragmentDirections;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
     private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
+    private String apiKey;
     private ActivityMainBinding binding;
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -89,11 +92,16 @@ public class MainActivity extends AppCompatActivity {
     private UserRepository userRepository = UserRepository.getInstance();
     FirebaseUser user;
 
+    private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
+    private NavController navController;
+    private MainActivity activity = this;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        manageApiKey();
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         configureToolbar();
@@ -198,14 +206,15 @@ public class MainActivity extends AppCompatActivity {
                     Observer <String> restaurantIdKey = new Observer<String>() {
                         @Override
                         public void onChanged(String restaurantIdKey) {
-                           /* Bundle arg = new Bundle();
-                            arg.putString(RESTAURANT_ID_KEY, restaurantIdKey);
-                            Fragment fragment = RestaurantDetails.getInstance();
-                            fragment.setArguments(arg);
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.nav_host_fragment_content_main, fragment)
-                                    .addToBackStack(null)
-                                    .commit();*/
+                            action = com.example.go4lunch.ui.mapview.MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails(restaurantIdKey);
+                            //Navigation.findNavController(activity, R.id.nav_host_fragment_content_main).navigate(action);
+                            navController = Navigation.findNavController(activity, R.id.nav_host_fragment_content_main);
+                            navController.navigate(action);
+                            //navController.navigateUp();
+                            //navController.popBackStack();
+
+
+
                         }
                     };
                     mainActivityViewModel.getRestaurantBooking().observe(this, restaurantIdKey);
@@ -353,6 +362,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    public void manageApiKey(){
+        apiKey = getResources().getString(R.string.maps_api_key);
+        mainActivityViewModel.setApiKey(apiKey);
     }
 
 }

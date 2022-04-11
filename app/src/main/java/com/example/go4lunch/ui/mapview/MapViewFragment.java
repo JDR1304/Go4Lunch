@@ -1,22 +1,18 @@
 package com.example.go4lunch.ui.mapview;
 
 
-import static android.content.ContentValues.TAG;
-
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
@@ -24,7 +20,6 @@ import androidx.navigation.Navigation;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.modelApiNearby.Result;
-import com.example.go4lunch.ui.RestaurantDetails;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -50,6 +45,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     private String restaurantId;
     private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
+    private Context context = getContext();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -67,7 +63,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                 .findFragmentById(R.id.map);
         mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         SharedPreferences preferences = getActivity().getApplicationContext().getSharedPreferences("preferences", 0);
-        mainActivityViewModel.setRestaurantBooking(preferences.getString(PREFERENCES_KEY,null));
+        mainActivityViewModel.setRestaurantBooking(preferences.getString(PREFERENCES_KEY, null));
         mainActivityViewModel.getLocation().observe(this, new Observer<Location>() {
             @Override
             public void onChanged(Location location) {
@@ -101,11 +97,10 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                 LatLng restaurantPosition;
                 for (int i = 0; i < results.size(); i++) {
                     restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
-                    if (results.get(i).getPlaceId().equals(mainActivityViewModel.getRestaurantBooking().getValue())){
+                    if (results.get(i).getPlaceId().equals(mainActivityViewModel.getRestaurantBooking().getValue())) {
                         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                        .position(restaurantPosition).title(results.get(i).getName()));
-                    }
-                    else {
+                                .position(restaurantPosition).title(results.get(i).getName()));
+                    } else {
                         marker = mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
                     }
 
@@ -121,7 +116,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
 
                         }
                         action = MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails(restaurantId);
-                        Navigation.findNavController(getActivity(),R.id.nav_host_fragment_content_main).navigate(action);
+                        Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main).navigate(action);
 
                         return true;
                     }

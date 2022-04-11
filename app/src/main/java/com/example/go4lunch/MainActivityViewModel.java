@@ -1,5 +1,6 @@
 package com.example.go4lunch;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 
@@ -13,6 +14,8 @@ import com.example.go4lunch.repository.RestaurantRepository;
 import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
+
+    public String apiKey;
 
     public MutableLiveData <String> restaurantIdKeyLiveData = new MutableLiveData<>();
 
@@ -29,7 +32,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public LiveData<List<Result>> getRestaurants() {
-        return restaurantRepository.getRestaurants(locationLiveData.getValue());
+        return restaurantRepository.getRestaurants(locationLiveData.getValue(), getApiKey());
     }
 
     public LiveData<String> getRestaurantBooking() {
@@ -40,12 +43,11 @@ public class MainActivityViewModel extends ViewModel {
         restaurantIdKeyLiveData.postValue(restaurantIdKey);
     }
 
-    public void setSharedPreferences(String preference){
-
+    public String getApiKey(){
+        return apiKey;
     }
 
-    public String getSharedPreferences(){
-
-        return null;
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
     }
 }

@@ -1,11 +1,16 @@
 package com.example.go4lunch.network;
 
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Context;
+import android.content.res.Resources;
 import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.example.go4lunch.R;
 import com.example.go4lunch.modelApiNearby.Restaurant;
 
 import java.lang.ref.WeakReference;
@@ -19,6 +24,7 @@ import retrofit2.Response;
 public class NearbyRestaurants {
 
 
+
     // Creating a callback
     public interface Callbacks {
         void onResponse(@Nullable Restaurant restaurant);
@@ -26,7 +32,7 @@ public class NearbyRestaurants {
     }
 
     // Public method to start fetching restaurants
-    public static void fetchRestaurants(Callbacks callbacks, Location location){
+    public static void fetchRestaurants(Callbacks callbacks, Location location, String apiKey){
         // Create a weak reference to callback (avoid memory leaks)
         final WeakReference<Callbacks> callbacksWeakReference = new WeakReference<Callbacks>(callbacks);
         // Get a Retrofit instance and the related endpoints
@@ -37,7 +43,8 @@ public class NearbyRestaurants {
         params.put("location", location.getLatitude()+","+location.getLongitude());
         params.put("radius", "1500");
         params.put("type", "restaurant");
-        params.put("key", "AIzaSyD6pekqGKHnG9bm4jbb21ges37dv2UgH5w");
+        params.put("key", apiKey);
+
         Call<Restaurant> call = nearbyGoogleApi.getResults(params);
         // Start the call
         call.enqueue(new Callback<Restaurant>() {

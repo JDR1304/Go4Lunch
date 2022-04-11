@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+#Pour sous dossiers
+*/local.properties

@@ -17,7 +17,6 @@ public class WorkmatesViewModel extends ViewModel  {
     public LiveData<List<User>> getUsers() {
         return userRepository.getUsersList();
 
-
     }
 
 }
