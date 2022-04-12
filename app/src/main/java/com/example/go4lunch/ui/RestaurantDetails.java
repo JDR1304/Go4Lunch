@@ -1,10 +1,14 @@
 package com.example.go4lunch.ui;
 
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -15,19 +19,28 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.modelApiNearby.Result;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 
+import java.io.DataInput;
+import java.util.Arrays;
 import java.util.List;
 
 public class RestaurantDetails extends Fragment {
@@ -36,6 +49,10 @@ public class RestaurantDetails extends Fragment {
     private Result restaurant;
     private MainActivityViewModel mainActivityViewModel;
     private String restaurantPlaceId;
+    private ImageView call;
+    private ImageView website;
+    private ImageView like;
+    private ImageView star;
 
     private ImageView restaurantImageView;
     private TextView restaurantName;
@@ -43,6 +60,8 @@ public class RestaurantDetails extends Fragment {
     private FloatingActionButton restaurantBooking;
     private static RestaurantDetails instance;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
+    private Uri websiteUrl;
+    private String phoneNumber;
 
 
     public static RestaurantDetails getInstance() {
@@ -73,8 +92,10 @@ public class RestaurantDetails extends Fragment {
 
         getRestaurantList();
         initRestaurant(view);
-
-
+        getPlacePhoneNumberAndWebsite(restaurantPlaceId);
+        getWebsite();
+        callRestaurant();
+        getLike();
 
         if (restaurantPlaceId.equals(mainActivityViewModel.getRestaurantBooking().getValue())){
             restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
@@ -101,6 +122,7 @@ public class RestaurantDetails extends Fragment {
 
     }
 
+
     private void setSharedPreferences(String id) {
         //La création d'un objet de type sharedPreferences pour stocker des données privées (primitives) sous forme clé/valeur.
         SharedPreferences preferences = getActivity().getApplicationContext().getSharedPreferences("preferences", 0);
@@ -120,20 +142,18 @@ public class RestaurantDetails extends Fragment {
         restaurantName = view.findViewById(R.id.restaurant_details_name);
         address = view.findViewById(R.id.restaurant_details_address);
         restaurantBooking = view.findViewById(R.id.check_fab);
+        call = view.findViewById(R.id.image_view_phone);
+        website = view.findViewById(R.id.image_view_earth);
+        like = view.findViewById(R.id.image_view_star);
+        star = view.findViewById(R.id.restaurant_details_star);
         getRestaurantPicture(restaurant);
         restaurantName.setText(restaurant.getName());
         address.setText(restaurant.getVicinity());
     }
 
     private void getRestaurantList() {
-        Observer<List<Result>> results = new Observer<List<Result>>() {
-            @Override
-            public void onChanged(List<Result> results) {
-                restaurantList = results;
-            }
-        };
-        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
-        mainActivityViewModel.getRestaurants().observe(getActivity(), results);
+        restaurantList = mainActivityViewModel.getRestaurants().getValue();
+
     }
 
     public Result getRestaurantById(String placeId) {
@@ -150,12 +170,88 @@ public class RestaurantDetails extends Fragment {
             String reference = restaurant.getPhotos().get(0).getPhotoReference();
             String pictureSize = Integer.toString(restaurant.getPhotos().get(0).getWidth());
             Glide.with(this.restaurantImageView.getContext())
-                    .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=AIzaSyD6pekqGKHnG9bm4jbb21ges37dv2UgH5w")
+                    .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key="+mainActivityViewModel.apiKey)
                     .into(this.restaurantImageView);
         } else {
             Glide.with(this.restaurantImageView.getContext())
                     .load(R.drawable.go4lunch)
                     .into(this.restaurantImageView);
         }
+    }
+
+    private void getPlacePhoneNumberAndWebsite(String restaurantPlaceId){
+        // Initialize Places.
+        Places.initialize(getActivity(), mainActivityViewModel.apiKey);
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(getContext());
+        // Define a Place ID.
+        final String placeId = restaurantPlaceId;
+
+        // Specify the fields to return.
+        final List<Place.Field> placeFields = Arrays.asList(Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI);
+
+        // Construct a request object, passing the place ID and fields array.
+        final FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+
+        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            phoneNumber = place.getPhoneNumber();
+            websiteUrl = place.getWebsiteUri();
+
+        }).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                final ApiException apiException = (ApiException) exception;
+                final int statusCode = apiException.getStatusCode();
+
+            }
+        });
+    }
+
+    private void callRestaurant(){
+        call.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent dialIntent = new Intent(Intent.ACTION_DIAL);
+                Uri data = Uri.parse("tel:"+phoneNumber);
+                dialIntent.setData(data);
+                startActivity(dialIntent);
+
+            }
+        });
+
+    }
+
+    private void getWebsite(){
+        website.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (websiteUrl != null) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, websiteUrl);
+                    startActivity(browserIntent);
+                }
+                else{
+                    Toast.makeText(getContext(), "No website accessible", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void getLike(){
+
+        like.setOnClickListener(new View.OnClickListener() {
+            int i = 0;
+            @Override
+            public void onClick(View v) {
+                if (i==0) {
+                    star.setVisibility(View.VISIBLE);
+                    i++;
+                }else {
+                    star.setVisibility(View.GONE);
+                    i--;
+                }
+            }
+        });
     }
 }

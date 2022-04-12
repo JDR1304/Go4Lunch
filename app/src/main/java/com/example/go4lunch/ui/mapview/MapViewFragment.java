@@ -45,7 +45,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     private String restaurantId;
     private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
-    private Context context = getContext();
+
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,

@@ -77,7 +77,11 @@
                     android:padding="8dp"
                     android:background="@color/orange"
                     android:orientation="vertical">
-
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/orange"
+                        android:orientation="horizontal">
                     <TextView
                         android:id="@+id/restaurant_details_name"
                         android:layout_width="wrap_content"
@@ -86,6 +90,17 @@
                         android:text="restaurant_name"
                         android:textSize="20dp"
                         android:textColor="@color/white"></TextView>
+                    <ImageView
+                        android:id="@+id/restaurant_details_star"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="8dp"
+                        app:srcCompat="@drawable/ic_baseline_star_24"
+                        android:visibility="invisible"
+                        app:tint="@color/quantum_amber500"/>
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/restaurant_details_address"
@@ -121,7 +136,7 @@
                             android:id="@+id/image_view_phone"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
-                            android:layout_marginLeft="70dp"
+                            android:layout_weight="1"
                             android:layout_marginTop="16dp"
                             android:layout_marginBottom="16dp"
                             app:srcCompat="@drawable/ic_baseline_local_phone_24"
@@ -131,7 +146,7 @@
                             android:id="@+id/image_view_star"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
-                            android:layout_marginLeft="70dp"
+                            android:layout_weight="1"
                             android:layout_marginTop="16dp"
                             android:layout_marginBottom="16dp"
                             app:srcCompat="@drawable/ic_baseline_star_24"
@@ -141,7 +156,7 @@
                             android:id="@+id/image_view_earth"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
-                            android:layout_marginLeft="70dp"
+                            android:layout_weight="1"
                             android:layout_marginTop="16dp"
                             android:layout_marginBottom="16dp"
                             app:srcCompat="@drawable/ic_round_south_america_24"
@@ -158,21 +173,27 @@
                             android:id="@+id/text_view_phone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="75dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:layout_marginLeft="5dp"
                             android:layout_marginTop="16dp"
                             android:layout_marginBottom="16dp"
                             android:text="CALL"
                             android:textColor="@color/orange"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textSize="20dp"/>
 
                         <TextView
                             android:id="@+id/text_view_star"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="80dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
                             android:layout_marginTop="16dp"
                             android:layout_marginBottom="16dp"
+                            android:layout_marginLeft="25dp"
                             android:text="LIKE"
+                            android:textSize="20dp"
                             android:textColor="@color/orange"
                             android:textStyle="bold" />
 
@@ -180,12 +201,14 @@
                             android:id="@+id/text_view_earth"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="75dp"
+                            android:layout_weight="1"
+                            android:gravity="center"
                             android:layout_marginTop="16dp"
                             android:layout_marginBottom="16dp"
                             android:text="WEBSITE"
                             android:textColor="@color/orange"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"
+                            android:textSize="20dp"/>
 
                     </LinearLayout>
                 </LinearLayout>

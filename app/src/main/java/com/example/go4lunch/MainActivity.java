@@ -86,15 +86,12 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationProviderClient;
     //Config for all setting related to FusedLocationProviderClient
     private LocationRequest locationRequest;
-    private PlacesClient placesClient;
+
 
     //private UserManager userManager = UserManager.getInstance();
     private UserRepository userRepository = UserRepository.getInstance();
     FirebaseUser user;
 
-    private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
-    private NavController navController;
-    private MainActivity activity = this;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -202,17 +199,15 @@ public class MainActivity extends AppCompatActivity {
                     });
                     return true;
                 case R.id.nav_lunch:
-
+                   /* Bundle bundle = new Bundle();
+                    Fragment fragment = RestaurantDetails.getInstance();*/
                     Observer <String> restaurantIdKey = new Observer<String>() {
                         @Override
                         public void onChanged(String restaurantIdKey) {
-                            action = com.example.go4lunch.ui.mapview.MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails(restaurantIdKey);
-                            //Navigation.findNavController(activity, R.id.nav_host_fragment_content_main).navigate(action);
-                            navController = Navigation.findNavController(activity, R.id.nav_host_fragment_content_main);
-                            navController.navigate(action);
-                            //navController.navigateUp();
-                            //navController.popBackStack();
-
+                            /*bundle.putString(RESTAURANT_ID_KEY,restaurantIdKey);
+                            fragment.setArguments(bundle);
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.nav_host_fragment_content_main,fragment).commit();*/
 
 
                         }

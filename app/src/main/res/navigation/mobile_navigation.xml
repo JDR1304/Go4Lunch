@@ -7,6 +7,12 @@
     app:startDestination="@+id/navigation_map_view">
 
     <fragment
+        android:id="@+id/nav_lunch">
+        <action
+            android:id="@+id/action_nav_lunch_to_navigation_restaurantDetails"
+            app:destination="@id/navigation_restaurantDetails" />
+    </fragment>
+    <fragment
         android:id="@+id/navigation_map_view"
         android:name="com.example.go4lunch.ui.mapview.MapViewFragment"
         android:label="@string/title_map_view"

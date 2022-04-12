@@ -66,7 +66,6 @@ public class ListViewFragment extends Fragment {
 
                     @Override
                     public void onClickItem(String placeId) {
-                        Log.e(TAG, "onClickItem: "+placeId );
                         Result restaurant = getRestaurantId(results, placeId);
                         action = ListViewFragmentDirections.actionNavigationListViewToNavigationRestaurantDetails(placeId);
                         Navigation.findNavController(getActivity(),R.id.nav_host_fragment_content_main).navigate(action);
@@ -74,7 +73,6 @@ public class ListViewFragment extends Fragment {
                 });
                 recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
                 recyclerView.setAdapter(listViewRecyclerViewAdapter);
-                Log.e(TAG, "onChanged: in listViewFragment" + results);
             }
         };
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
