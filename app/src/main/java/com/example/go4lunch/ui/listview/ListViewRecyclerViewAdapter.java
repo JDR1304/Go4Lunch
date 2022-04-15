@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.ui.RestaurantDetails;
 
@@ -32,12 +33,12 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
     private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
     List<Result> restaurantList;
     MainActivityViewModel mainActivityViewModel;
-    int numberOfCoworker = 4;
-    int i = 40;
-    ListViewFragment.RetrieveIdRestaurant listener;
+    private int numberOfCoworker = 4;
+    private int i = 40;
+    private RetrieveIdRestaurant listener;
 
 
-    public ListViewRecyclerViewAdapter(List<Result> restaurantList, MainActivityViewModel viewModel, ListViewFragment.RetrieveIdRestaurant listener) {
+    public ListViewRecyclerViewAdapter(List<Result> restaurantList, MainActivityViewModel viewModel, RetrieveIdRestaurant listener) {
         this.restaurantList = restaurantList;
         this.mainActivityViewModel = viewModel;
         this.listener = listener;

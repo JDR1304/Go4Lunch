@@ -2,7 +2,6 @@ package com.example.go4lunch.ui.mapview;
 
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
@@ -42,7 +41,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     private static final int DEFAULT_ZOOM = 15;
     private Marker marker;
     private Location location;
-    private String restaurantId;
+    private String placeId;
     private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
 
@@ -97,7 +96,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                 LatLng restaurantPosition;
                 for (int i = 0; i < results.size(); i++) {
                     restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
-                    if (results.get(i).getPlaceId().equals(mainActivityViewModel.getRestaurantBooking().getValue())) {
+                    if (results.get(i).getPlaceId().equals(mainActivityViewModel.getRestaurantBooking())) {
                         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
                                 .position(restaurantPosition).title(results.get(i).getName()));
                     } else {
@@ -111,11 +110,12 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                     public boolean onMarkerClick(Marker arg0) {
                         for (int i = 0; i < results.size(); i++) {
                             if (results.get(i).getName().equals(arg0.getTitle())) {
-                                restaurantId = results.get(i).getPlaceId();
+                                placeId = results.get(i).getPlaceId();
                             }
 
                         }
-                        action = MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails(restaurantId);
+                        action = MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails();
+                        action.setPlaceId(placeId);
                         Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main).navigate(action);
 
                         return true;

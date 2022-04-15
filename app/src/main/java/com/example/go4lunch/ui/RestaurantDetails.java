@@ -1,9 +1,7 @@
 package com.example.go4lunch.ui;
 
-
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
@@ -14,10 +12,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.modelApiNearby.Result;
+import com.example.go4lunch.ui.listview.ListViewRecyclerViewAdapter;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -38,8 +35,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-
-import java.io.DataInput;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -48,7 +44,7 @@ public class RestaurantDetails extends Fragment {
     private List<Result> restaurantList;
     private Result restaurant;
     private MainActivityViewModel mainActivityViewModel;
-    private String restaurantPlaceId;
+    private String placeId;
     private ImageView call;
     private ImageView website;
     private ImageView like;
@@ -62,22 +58,29 @@ public class RestaurantDetails extends Fragment {
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
     private Uri websiteUrl;
     private String phoneNumber;
+    private RecyclerView recyclerView;
+    private ListViewRecyclerViewAdapter listViewRecyclerViewAdapter;
 
 
     public static RestaurantDetails getInstance() {
-        if(instance== null)
-        instance= new RestaurantDetails();
+        if (instance == null)
+            instance = new RestaurantDetails();
         return instance;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null) {
-            restaurantPlaceId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
-        }
         mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
 
+        if (RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId().equals("from drawer")){
+            placeId = mainActivityViewModel.getRestaurantBooking();
+            Log.e(TAG, "onCreate: in if "+placeId );
+        }
+        else {
+            placeId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
+            Log.e(TAG, "onCreate: in else "+placeId );
+        }
     }
 
     @Override
@@ -92,34 +95,39 @@ public class RestaurantDetails extends Fragment {
 
         getRestaurantList();
         initRestaurant(view);
-        getPlacePhoneNumberAndWebsite(restaurantPlaceId);
+        getPlacePhoneNumberAndWebsite(placeId);
         getWebsite();
         callRestaurant();
         getLike();
+        restaurantBooked();
 
-        if (restaurantPlaceId.equals(mainActivityViewModel.getRestaurantBooking().getValue())){
+    }
+
+    private void restaurantBooked() {
+        if (placeId.equals(mainActivityViewModel.getRestaurantBooking())) {
             restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
         }
-
-
         restaurantBooking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (restaurantBooking.getBackgroundTintList().equals(ColorStateList.valueOf(Color.WHITE))) {
                     restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    mainActivityViewModel.setRestaurantBooking(restaurantPlaceId);
-                    setSharedPreferences(restaurantPlaceId);
+                    List <String> userID = new ArrayList<>();
+                    userID.add(mainActivityViewModel.getCurrentUserUid());
+                    mainActivityViewModel.updateRestaurantPlaceId(placeId);
+                    mainActivityViewModel.createRestaurant(placeId, 0, userID );
+                    //mainActivityViewModel.setRestaurantBooking(placeId);
+                    //setSharedPreferences(placeId);
                     // incrémenter le coworker number pour le restaurant
                 } else {
                     restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
-                    mainActivityViewModel.setRestaurantBooking(null);
-                    setSharedPreferences(null);
+                    mainActivityViewModel.updateRestaurantPlaceId(null);
+                    mainActivityViewModel.deleteRestaurant(placeId);
+                    //mainActivityViewModel.setRestaurantBooking(null);
+                    //setSharedPreferences(null);
                 }
-
             }
-
         });
-
     }
 
 
@@ -137,7 +145,7 @@ public class RestaurantDetails extends Fragment {
 
 
     private void initRestaurant(@NonNull View view) {
-        restaurant = getRestaurantById(restaurantPlaceId);
+        restaurant = getRestaurantById(placeId);
         restaurantImageView = view.findViewById(R.id.restaurant_details_image_view);
         restaurantName = view.findViewById(R.id.restaurant_details_name);
         address = view.findViewById(R.id.restaurant_details_address);
@@ -170,7 +178,7 @@ public class RestaurantDetails extends Fragment {
             String reference = restaurant.getPhotos().get(0).getPhotoReference();
             String pictureSize = Integer.toString(restaurant.getPhotos().get(0).getWidth());
             Glide.with(this.restaurantImageView.getContext())
-                    .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key="+mainActivityViewModel.apiKey)
+                    .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + mainActivityViewModel.apiKey)
                     .into(this.restaurantImageView);
         } else {
             Glide.with(this.restaurantImageView.getContext())
@@ -179,7 +187,7 @@ public class RestaurantDetails extends Fragment {
         }
     }
 
-    private void getPlacePhoneNumberAndWebsite(String restaurantPlaceId){
+    private void getPlacePhoneNumberAndWebsite(String restaurantPlaceId) {
         // Initialize Places.
         Places.initialize(getActivity(), mainActivityViewModel.apiKey);
 
@@ -208,12 +216,12 @@ public class RestaurantDetails extends Fragment {
         });
     }
 
-    private void callRestaurant(){
+    private void callRestaurant() {
         call.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent dialIntent = new Intent(Intent.ACTION_DIAL);
-                Uri data = Uri.parse("tel:"+phoneNumber);
+                Uri data = Uri.parse("tel:" + phoneNumber);
                 dialIntent.setData(data);
                 startActivity(dialIntent);
 
@@ -222,7 +230,7 @@ public class RestaurantDetails extends Fragment {
 
     }
 
-    private void getWebsite(){
+    private void getWebsite() {
         website.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -230,28 +238,31 @@ public class RestaurantDetails extends Fragment {
                 if (websiteUrl != null) {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, websiteUrl);
                     startActivity(browserIntent);
-                }
-                else{
+                } else {
                     Toast.makeText(getContext(), "No website accessible", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
-    private void getLike(){
+    private void getLike() {
 
         like.setOnClickListener(new View.OnClickListener() {
             int i = 0;
+
             @Override
             public void onClick(View v) {
-                if (i==0) {
+                if (i == 0) {
                     star.setVisibility(View.VISIBLE);
+                    mainActivityViewModel.likeIncrement(placeId);
                     i++;
-                }else {
+                } else {
                     star.setVisibility(View.GONE);
+                    mainActivityViewModel.likeDecrement(placeId);
                     i--;
                 }
             }
         });
     }
+
 }

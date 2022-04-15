@@ -5,18 +5,24 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.go4lunch.model.User;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
@@ -29,8 +35,10 @@ public class UserRepository {
     private static final String COLLECTION_NAME = "users";
     private static final String USERNAME_FIELD = "username";
     private static final String EMAIL_FIELD = "useremail";
+    private static final String RESTAURANT_PLACE_ID = "restaurantPlaceId";
     private MutableLiveData<List<User>> usersList;
     private static volatile UserRepository instance;
+
 
     private UserRepository() {
     }
@@ -77,8 +85,9 @@ public class UserRepository {
             String useremail = user.getEmail();
             String username = user.getDisplayName();
             String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
+            String restaurantPlaceId;
 
-            User userToCreate = new User(uid, useremail, username, urlPicture);
+            User userToCreate = new User(uid, useremail, username, urlPicture, null );
 
             Task<DocumentSnapshot> userData = getUserData();
             // If the user already exist in Firestore, we get his data
@@ -99,14 +108,23 @@ public class UserRepository {
         }
     }
 
-    private String getCurrentUserUID() {
+    public String getCurrentUserUID() {
         FirebaseUser user = getCurrentUser();
         return (user != null) ? user.getUid() : null;
     }
 
-    private String getCurrentUserName() {
+    public String getCurrentUserName() {
         FirebaseUser user = getCurrentUser();
         return (user != null) ? user.getDisplayName() : null;
+    }
+
+    public Task<Void> updatePlaceId(String placeId){
+        String uid = this.getCurrentUserUID();
+        if (uid != null) {
+            return this.getUsersCollection().document(uid).update(RESTAURANT_PLACE_ID, placeId);
+        } else {
+            return null;
+        }
     }
 
     // Update User Username

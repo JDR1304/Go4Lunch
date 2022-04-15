@@ -11,9 +11,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -21,7 +18,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 
 import android.content.pm.PackageManager;
@@ -41,8 +37,6 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
 import com.example.go4lunch.repository.UserRepository;
-import com.example.go4lunch.ui.RestaurantDetails;
-import com.example.go4lunch.ui.mapview.MapViewFragmentDirections;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
@@ -50,7 +44,6 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.Task;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
@@ -63,9 +56,10 @@ import java.util.Objects;
 public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
-    private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
+    private final int locationRequestCode = 1000;
     private String apiKey;
     private ActivityMainBinding binding;
+    private MainActivityViewModel mainActivityViewModel;
     private AppBarConfiguration mAppBarConfiguration;
 
     //Toolbar custom
@@ -76,17 +70,13 @@ public class MainActivity extends AppCompatActivity {
     private TextView headerDrawerName;
     private TextView headerDrawerEmail;
 
+    //Tie DrawerLayout and actionBar
     private ActionBarDrawerToggle toggle;
-
-    private MainActivityViewModel mainActivityViewModel;
-    private final int locationRequestCode = 1000;
-
 
     //Google's API for location services
     private FusedLocationProviderClient fusedLocationProviderClient;
     //Config for all setting related to FusedLocationProviderClient
     private LocationRequest locationRequest;
-
 
     //private UserManager userManager = UserManager.getInstance();
     private UserRepository userRepository = UserRepository.getInstance();
@@ -97,14 +87,14 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-        manageApiKey();
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        updateGps();
+        manageApiKey();
         configureToolbar();
 
     }
-
 
     @Override
     protected void onResume() {
@@ -113,16 +103,12 @@ public class MainActivity extends AppCompatActivity {
         updateGps();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.e(TAG, "onDestroy: In Main Activity " );
-    }
 
     private void checkIfUserLogged() {
         // Login/Profile Button
         if (userRepository.isCurrentUserLogged()) {
             user = userRepository.getCurrentUser();
+
             drawerBindingView();
             uiDrawerNavigation();
             uiBottomNavigation();
@@ -134,23 +120,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             startSignInActivity();
         }
-
-    }
-
-    //Configure Toolbar custom without Title
-    private void configureToolbar() {
-        this.toolbar = binding.bottomNavigation.toolbarCustom;
-        setSupportActionBar(binding.bottomNavigation.toolbarCustom);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
-    }
-
-
-    private void drawerBindingView() {
-        View headerView = binding.navViewDrawer.getHeaderView(0);
-        NavHeaderDrawerMainBinding headerBinding = NavHeaderDrawerMainBinding.bind(headerView);
-        headerDrawerImage = headerBinding.imageViewHeaderDrawer;
-        headerDrawerName = headerBinding.textViewHeaderDrawerName;
-        headerDrawerEmail = headerBinding.textViewHeaderDrawerEmail;
     }
 
     private void setProfileUserDataInTheHeader(FirebaseUser user) {
@@ -170,6 +139,21 @@ public class MainActivity extends AppCompatActivity {
                 .into(headerDrawerImage);
     }
 
+    //Configure Toolbar custom without Title
+    private void configureToolbar() {
+        this.toolbar = binding.bottomNavigation.toolbarCustom;
+        setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayShowTitleEnabled(false);
+    }
+
+    private void drawerBindingView() {
+        View headerView = binding.navViewDrawer.getHeaderView(0);
+        NavHeaderDrawerMainBinding headerBinding = NavHeaderDrawerMainBinding.bind(headerView);
+        headerDrawerImage = headerBinding.imageViewHeaderDrawer;
+        headerDrawerName = headerBinding.textViewHeaderDrawerName;
+        headerDrawerEmail = headerBinding.textViewHeaderDrawerEmail;
+    }
+
     private void uiDrawerNavigation() {
         //Tie Toolbar custom and the drawerLayout
         DrawerLayout drawer = binding.drawerLayout;
@@ -177,43 +161,35 @@ public class MainActivity extends AppCompatActivity {
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = binding.navViewDrawer;
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                  R.id.navigation_map_view, R.id.navigation_workmates,R.id.navigation_list_view)
                 .setOpenableLayout(drawer)
                 .build();
+
         NavController navDrawerController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navDrawerController, mAppBarConfiguration);
+
+
         //Bind NavGraph with Navigation Drawer
+        NavigationView navigationView = binding.navViewDrawer;
         NavigationUI.setupWithNavController(navigationView, navDrawerController);
 
         // code ajouter pour la gestion de mon menu
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             switch (menuItem.getItemId()) {
                 case R.id.nav_logout:
-                    Toast.makeText(getApplicationContext(), "logout", Toast.LENGTH_SHORT).show();
                     userRepository.signOut(this).addOnSuccessListener(aVoid -> {
                         startSignInActivity();
                     });
                     return true;
-                case R.id.nav_lunch:
-                   /* Bundle bundle = new Bundle();
-                    Fragment fragment = RestaurantDetails.getInstance();*/
-                    Observer <String> restaurantIdKey = new Observer<String>() {
-                        @Override
-                        public void onChanged(String restaurantIdKey) {
-                            /*bundle.putString(RESTAURANT_ID_KEY,restaurantIdKey);
-                            fragment.setArguments(bundle);
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.nav_host_fragment_content_main,fragment).commit();*/
-
-
-                        }
-                    };
-                    mainActivityViewModel.getRestaurantBooking().observe(this, restaurantIdKey);
-
+                case R.id.restaurant_details:
+                    if (mainActivityViewModel.getRestaurantBooking()==null) {
+                        Toast.makeText(getApplicationContext(), "No restaurant chosen", Toast.LENGTH_LONG).show();
+                    }else {
+                        NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
+                    }
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
 
@@ -236,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
         NavController navBottomController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupWithNavController(binding.bottomNavigation.navView, navBottomController);
     }
+
+
 
     private void startSignInActivity() {
 

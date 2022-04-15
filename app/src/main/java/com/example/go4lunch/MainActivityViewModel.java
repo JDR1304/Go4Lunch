@@ -1,27 +1,37 @@
 package com.example.go4lunch;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.location.Location;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.go4lunch.model.User;
 import com.example.go4lunch.modelApiNearby.Result;
+import com.example.go4lunch.repository.ApiRepository;
 import com.example.go4lunch.repository.RestaurantRepository;
+import com.example.go4lunch.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
 
     public String apiKey;
 
+    public String restaurantPlaceId;
+
+    public List <User> usersList = new ArrayList<>();
+
     public MutableLiveData <String> restaurantIdKeyLiveData = new MutableLiveData<>();
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
-    public RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
+    private UserRepository userRepository = UserRepository.getInstance();
+
+    private RestaurantRepository restaurantRepository =RestaurantRepository.getInstance();
+
+    public ApiRepository apiRepository = ApiRepository.getInstance();
 
     public MutableLiveData<Location> getLocation() {
         return locationLiveData;
@@ -32,12 +42,12 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public LiveData<List<Result>> getRestaurants() {
-        return restaurantRepository.getRestaurants(locationLiveData.getValue(), getApiKey());
+        return apiRepository.getRestaurants(locationLiveData.getValue(), getApiKey());
     }
 
-    public LiveData<String> getRestaurantBooking() {
+    /*public LiveData<String> getRestaurantBooking() {
         return restaurantIdKeyLiveData;
-    }
+    }*/
 
     public void setRestaurantBooking(String restaurantIdKey) {
         restaurantIdKeyLiveData.postValue(restaurantIdKey);
@@ -49,5 +59,40 @@ public class MainActivityViewModel extends ViewModel {
 
     public void setApiKey(String apiKey) {
         this.apiKey = apiKey;
+    }
+
+    // Why return LiveData because I don't want change the data outside the viewModel
+    public LiveData<List<User>> getUsers() {
+        return userRepository.getUsersList();
+    }
+
+    public String getCurrentUserUid(){
+        return userRepository.getCurrentUserUID();
+    }
+
+    public void updateRestaurantPlaceId(String placeId){
+        restaurantPlaceId = placeId;
+        userRepository.updatePlaceId(placeId);
+    }
+    public String getRestaurantBooking() {
+        return restaurantPlaceId;
+    }
+
+//------------------------------------------------------------------------------------------------
+//RestaurantRepository
+
+    public void createRestaurant(String uid, int likeNumber, List<String> userId){
+        restaurantRepository.createRestaurant(uid, likeNumber, userId);
+    }
+
+    public void deleteRestaurant(String uid){
+        restaurantRepository.deleteRestaurantFromFirestore(uid);
+    }
+
+    public void likeIncrement(String uid) {
+        restaurantRepository.likeIncrement(uid);
+    }
+    public void likeDecrement(String uid) {
+        restaurantRepository.likeDecrement(uid);
     }
 }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentListViewBinding;
 import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.ui.RestaurantDetailsArgs;
@@ -28,9 +29,9 @@ import java.util.List;
 
 public class ListViewFragment extends Fragment {
 
-    interface RetrieveIdRestaurant {
+    /*interface RetrieveIdRestaurant {
         void onClickItem(String placeId);
-    }
+    }*/
 
     private FragmentListViewBinding binding;
     private MainActivityViewModel mainActivityViewModel;
@@ -66,8 +67,8 @@ public class ListViewFragment extends Fragment {
 
                     @Override
                     public void onClickItem(String placeId) {
-                        Result restaurant = getRestaurantId(results, placeId);
-                        action = ListViewFragmentDirections.actionNavigationListViewToNavigationRestaurantDetails(placeId);
+                        action = ListViewFragmentDirections.actionNavigationListViewToNavigationRestaurantDetails();
+                        action.setPlaceId(placeId);
                         Navigation.findNavController(getActivity(),R.id.nav_host_fragment_content_main).navigate(action);
                     }
                 });

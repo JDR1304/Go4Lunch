@@ -1,5 +1,8 @@
 package com.example.go4lunch.ui.workmates;
 
+import static android.content.ContentValues.TAG;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.model.User;
 
 import java.util.List;
@@ -20,9 +25,15 @@ import java.util.List;
 public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<WorkmatesRecyclerViewAdapter.ViewHolder> {
 
     private List<User> users;
+    private RetrieveIdRestaurant listener;
+    private MainActivityViewModel mainActivityViewModel;
 
-    public WorkmatesRecyclerViewAdapter(List<User> users) {
+
+
+    public WorkmatesRecyclerViewAdapter(List<User> users,MainActivityViewModel mainActivityViewModel, RetrieveIdRestaurant listener) {
         this.users = users;
+        this.listener = listener;
+        this.mainActivityViewModel = mainActivityViewModel;
     }
 
     @NonNull
@@ -37,11 +48,20 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
         holder.workMatesName.setText(user.getName());
+        holder.workMatesStatus.setText(" Reserve or not reserved");
 
         Glide.with(holder.roundView.getContext())
                 .load(user.getUrlPicture())
                 .apply(RequestOptions.circleCropTransform())
                 .into(holder.roundView);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                listener.onClickItem(user.getRestaurantPlaceId());
+            }
+        });
 
     }
 
