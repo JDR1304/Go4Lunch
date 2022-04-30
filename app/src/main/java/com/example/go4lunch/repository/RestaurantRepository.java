@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.go4lunch.model.RestaurantFavorite;
+import com.example.go4lunch.model.Restaurant;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
@@ -22,11 +22,11 @@ import java.util.List;
 
 public class RestaurantRepository {
 
-    private static final String COLLECTION_NAME = "restaurantFavorites";
+    private static final String COLLECTION_NAME = "restaurant";
     private static final String LIKE_NUMBER = "likeNumber";
     private static final String USER_ID = "userId";
     private MutableLiveData <Integer> numberLikeByRestaurant;
-    private MutableLiveData<List<RestaurantFavorite>> restaurantList;
+    private MutableLiveData<List<Restaurant>> restaurantList;
     private static volatile RestaurantRepository instance;
     private CollectionReference collectionReference;
 
@@ -53,14 +53,15 @@ public class RestaurantRepository {
     }
 
     // Create Restaurant in Firestore
-    public void createRestaurant(String uid, int likeNumber) {
+    public void createRestaurant(String uid,String name, String address, List<String> usersWhoChoseRestaurant,
+                                 List <String> favoriteRestaurantUsers, int likeNumber) {
 
-        RestaurantFavorite restaurantFavoriteToCreate = new RestaurantFavorite(uid, likeNumber);
+        Restaurant restaurantToCreate = new Restaurant(uid, name, address, usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber);
 
         Task<DocumentSnapshot> restaurantData = getRestaurantData(uid);
         // If the restaurant already exist in Firestore, we get his data
         restaurantData.addOnSuccessListener(documentSnapshot -> {
-            this.getRestaurantsCollection().document(uid).set(restaurantFavoriteToCreate);
+            this.getRestaurantsCollection().document(uid).set(restaurantToCreate);
         });
 
     }
@@ -71,8 +72,8 @@ public class RestaurantRepository {
     }
 
     // Get List Restaurant from firestore
-    public LiveData<List<RestaurantFavorite>> getRestaurantsList() {
-        List<RestaurantFavorite> restaurantFavorites = new ArrayList<>();
+    public LiveData<List<Restaurant>> getRestaurantsList() {
+        List<Restaurant> restaurants = new ArrayList<>();
         if (restaurantList == null) {
             restaurantList = new MutableLiveData<>();
         }
@@ -81,10 +82,10 @@ public class RestaurantRepository {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            RestaurantFavorite restaurantFavorite = document.toObject(RestaurantFavorite.class);
-                            restaurantFavorites.add(restaurantFavorite);
+                            Restaurant restaurant = document.toObject(Restaurant.class);
+                            restaurants.add(restaurant);
                             // MutableLivedata
-                            restaurantList.setValue(restaurantFavorites);
+                            restaurantList.setValue(restaurants);
                             Log.e(TAG, document.getId() + " => " + document.getData());
                         }
                     } else {

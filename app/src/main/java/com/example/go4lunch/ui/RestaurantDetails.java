@@ -63,7 +63,7 @@ public class RestaurantDetails extends Fragment {
     private int setColorFloatingButton;
     private static RestaurantDetails instance;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
-
+    private final String PLACE_ID = "place_id";
     private Uri websiteUrl;
     private String phoneNumber;
 
@@ -81,8 +81,9 @@ public class RestaurantDetails extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
-        if (getArguments() != null && getArguments().containsKey("place_id")) {
-            placeId = getArguments().getString("place_id");
+
+        if (getArguments() != null && getArguments().containsKey(PLACE_ID)) {
+            placeId = getArguments().getString(PLACE_ID);
         } else {
             getRestaurantPlaceId();
         }
@@ -112,13 +113,6 @@ public class RestaurantDetails extends Fragment {
     }
 
     private void getRestaurantPlaceId() {
-        /*if (RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId().equals("from drawer")) {
-            placeId = mainActivityViewModel.getRestaurantBooking();
-            setColorFloatingButton = 1;
-        } else {
-            placeId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
-            setColorFloatingButton = 0;
-        }*/
         placeId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
     }
 
@@ -151,13 +145,13 @@ public class RestaurantDetails extends Fragment {
         recyclerView = view.findViewById(R.id.restaurant_details_recyclerView);
     }
 
-    public void getButtonGreen() {
+   /* public void getButtonGreen() {
         restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
     }
 
     public void getButtonWhite() {
         restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
-    }
+    }*/
 
     public void setFloatingButton() {
         if (setColorFloatingButton == 1) {
@@ -252,11 +246,11 @@ public class RestaurantDetails extends Fragment {
                 for (int i = 0; i < users.size(); i++) {
                     if (users.get(i).getUid().equals(mainActivityViewModel.getCurrentUserUid())
                             && users.get(i).getRestaurantPlaceId() == null) {
-                        getButtonWhite();
+                        //getButtonWhite();
                         break;
                     } else if (users.get(i).getUid().equals(mainActivityViewModel.getCurrentUserUid()) &&
                             users.get(i).getRestaurantPlaceId().equals(placeId)) {
-                        getButtonGreen();
+                        //getButtonGreen();
                         break;
                     }
                 }
@@ -272,11 +266,16 @@ public class RestaurantDetails extends Fragment {
             public void onClick(View v) {
                 if (restaurantBooking.getBackgroundTintList().equals(ColorStateList.valueOf(Color.WHITE))) {
                     restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    if (placeId != null) {
+                    List <String> usersWhoChoseRestaurant = new ArrayList<>();
+                    List <String> favoriteRestaurantUsers = new ArrayList<>();
+                    usersWhoChoseRestaurant.add(mainActivityViewModel.getCurrentUserUid());
+                    int likeNumber = 0;
+                    /*if (placeId != null) {
                         mainActivityViewModel.deleteRestaurant(placeId);
-                    }
+                    }*/
                     mainActivityViewModel.updateRestaurantPlaceId(placeId);
-                    mainActivityViewModel.createRestaurant(placeId, 0);
+                    mainActivityViewModel.createRestaurant(placeId, restaurant.getName(), restaurant.getVicinity(),
+                            usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber);
                     Log.e(TAG, "onClick: in if " + placeId);
                     //mainActivityViewModel.setRestaurantBooking(placeId);
                     //setSharedPreferences(placeId);

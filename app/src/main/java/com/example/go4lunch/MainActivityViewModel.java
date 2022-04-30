@@ -78,8 +78,9 @@ public class MainActivityViewModel extends ViewModel {
 //------------------------------------------------------------------------------------------------
 //RestaurantRepository
 
-    public void createRestaurant(String uid, int likeNumber){
-        restaurantRepository.createRestaurant(uid, likeNumber);
+    public void createRestaurant(String uid,String name, String address, List<String> usersWhoChoseRestaurant,
+                                 List <String> favoriteRestaurantUsers, int likeNumber){
+        restaurantRepository.createRestaurant(uid, name, address, usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber);
     }
 
     public void deleteRestaurant(String uid){
@@ -87,7 +88,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void updateRestaurantPlaceId(String placeId){
-        restaurantPlaceId = placeId;
+        //restaurantPlaceId = placeId;
         userRepository.updatePlaceId(placeId);
     }
 
@@ -98,4 +99,6 @@ public class MainActivityViewModel extends ViewModel {
     public void likeDecrement(String uid) {
         restaurantRepository.likeDecrement(uid);
     }
+
+
 }
