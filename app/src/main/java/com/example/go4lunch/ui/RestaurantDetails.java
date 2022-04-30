@@ -12,7 +12,9 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -26,8 +28,10 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.RetrieveIdRestaurant;
+import com.example.go4lunch.model.User;
 import com.example.go4lunch.modelApiNearby.Result;
-import com.example.go4lunch.ui.listview.ListViewRecyclerViewAdapter;
+import com.example.go4lunch.ui.workmates.WorkmatesRecyclerViewAdapter;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -42,7 +46,9 @@ import java.util.List;
 public class RestaurantDetails extends Fragment {
 
     private List<Result> restaurantList;
+    private List<User> usersList = new ArrayList<>();
     private Result restaurant;
+    private User currentUser;
     private MainActivityViewModel mainActivityViewModel;
     private String placeId;
     private ImageView call;
@@ -54,12 +60,15 @@ public class RestaurantDetails extends Fragment {
     private TextView restaurantName;
     private TextView address;
     private FloatingActionButton restaurantBooking;
+    private int setColorFloatingButton;
     private static RestaurantDetails instance;
     private final String PREFERENCES_KEY = "PREFERENCES_KEY";
+
     private Uri websiteUrl;
     private String phoneNumber;
+
     private RecyclerView recyclerView;
-    private ListViewRecyclerViewAdapter listViewRecyclerViewAdapter;
+    private WorkmatesRecyclerViewAdapter workmatesRecyclerViewAdapter;
 
 
     public static RestaurantDetails getInstance() {
@@ -72,15 +81,14 @@ public class RestaurantDetails extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
-
-        if (RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId().equals("from drawer")){
-            placeId = mainActivityViewModel.getRestaurantBooking();
-            Log.e(TAG, "onCreate: in if "+placeId );
+        if (getArguments() != null && getArguments().containsKey("place_id")) {
+            placeId = getArguments().getString("place_id");
+        } else {
+            getRestaurantPlaceId();
         }
-        else {
-            placeId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
-            Log.e(TAG, "onCreate: in else "+placeId );
-        }
+        getRestaurantList();
+        getUsers();
+        getCurrentUser();
     }
 
     @Override
@@ -92,30 +100,184 @@ public class RestaurantDetails extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        initRestaurant(view);// Avec la liste et l'id j'identifie le resto et je créé la vue
 
-        getRestaurantList();
-        initRestaurant(view);
+        //displayRecyclerView();
+        //setFloatingButton(); // je mets le bouton vers si l'id correspond a celui reservé par l'user
+        restaurantBooked();
         getPlacePhoneNumberAndWebsite(placeId);
         getWebsite();
         callRestaurant();
         getLike();
-        restaurantBooked();
+    }
+
+    private void getRestaurantPlaceId() {
+        /*if (RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId().equals("from drawer")) {
+            placeId = mainActivityViewModel.getRestaurantBooking();
+            setColorFloatingButton = 1;
+        } else {
+            placeId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
+            setColorFloatingButton = 0;
+        }*/
+        placeId = RestaurantDetailsArgs.fromBundle(getArguments()).getPlaceId();
+    }
+
+    private void getRestaurantList() {
+        restaurantList = mainActivityViewModel.getRestaurants().getValue();
+    }
+
+    public Result getRestaurantById(String placeId) {
+        for (int i = 0; i < restaurantList.size(); i++) {
+            if (placeId.equals(restaurantList.get(i).getPlaceId())) {
+                return restaurantList.get(i);
+            }
+        }
+        return null;
+    }
+
+    private void initRestaurant(@NonNull View view) {
+        restaurant = getRestaurantById(placeId);
+        restaurantImageView = view.findViewById(R.id.restaurant_details_image_view);
+        restaurantName = view.findViewById(R.id.restaurant_details_name);
+        address = view.findViewById(R.id.restaurant_details_address);
+        restaurantBooking = view.findViewById(R.id.check_fab);
+        call = view.findViewById(R.id.image_view_phone);
+        website = view.findViewById(R.id.image_view_earth);
+        like = view.findViewById(R.id.image_view_star);
+        star = view.findViewById(R.id.restaurant_details_star);
+        getRestaurantPicture(restaurant);
+        restaurantName.setText(restaurant.getName());
+        address.setText(restaurant.getVicinity());
+        recyclerView = view.findViewById(R.id.restaurant_details_recyclerView);
+    }
+
+    public void getButtonGreen() {
+        restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+    }
+
+    public void getButtonWhite() {
+        restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+    }
+
+    public void setFloatingButton() {
+        if (setColorFloatingButton == 1) {
+            restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+        } else if (setColorFloatingButton == 0 /*&& currentUser.getRestaurantPlaceId().equals(placeId)*/) {
+            restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+        } else {
+            restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        }
+        /*Log.e(TAG, "setFloatingButton: " + getCurrentUser().getRestaurantPlaceId());
+        if (getCurrentUser().getRestaurantPlaceId() == null || getCurrentUser().getRestaurantPlaceId() != placeId) {
+            restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
+        } else {
+            restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+        }*/
 
     }
 
+    /*public void displayRecyclerView() {
+        List<User> usersListForRecyclerView = new ArrayList<>();
+        Observer<List<User>> users = new Observer<List<User>>() {
+            @Override
+            public void onChanged(@Nullable List<User> users) {
+                for (int i = 0; i < users.size(); i++) {
+                    if (users.get(i).getRestaurantPlaceId() == placeId) {
+                        usersListForRecyclerView.add(users.get(i));
+                    }
+                }
+                if (usersListForRecyclerView != null) {
+                    workmatesRecyclerViewAdapter = new WorkmatesRecyclerViewAdapter(usersListForRecyclerView, mainActivityViewModel, new RetrieveIdRestaurant() {
+                        @Override
+                        public void onClickItem(String placeId) {
+                            Log.e(TAG, "onClickItem: " + placeId);
+                        }
+                    });
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    recyclerView.setAdapter(workmatesRecyclerViewAdapter);
+                }
+            }
+        };
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getUsers().observe(getActivity(), users);
+    }*/
+
+    /*private List<User> getUsers(String placeId){
+        Observer<List<User>> users = new Observer<List<User>> () {
+            @Override
+            public void onChanged(@Nullable List<User> users) {
+                for (int i = 0; i < users.size(); i++) {
+                    if (users.get(i).getRestaurantPlaceId() == placeId) {
+                        usersList.add(users.get(i));
+                    }
+                }
+                if (usersList!=null) {
+                    workmatesRecyclerViewAdapter = new WorkmatesRecyclerViewAdapter(usersList, mainActivityViewModel, new RetrieveIdRestaurant() {
+                        @Override
+                        public void onClickItem(String placeId) {
+                            Log.e(TAG, "onClickItem: " + placeId);
+                        }
+                    });
+                    recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    recyclerView.setAdapter(workmatesRecyclerViewAdapter);
+                }
+            }
+        };
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getUsers().observe(getActivity(),users);
+        return usersList;
+    }*/
+
+    public List<User> getUsers() {
+        Observer<List<User>> users = new Observer<List<User>>() {
+            @Override
+            public void onChanged(@Nullable List<User> users) {
+                for (int i = 0; i < users.size(); i++) {
+                    Log.e(TAG, "onChanged: in getUsers" + users.get(i).getName());
+                    usersList.add(users.get(i));
+                }
+            }
+        };
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getUsers().observe(getActivity(), users);
+        return usersList;
+    }
+
+    public void getCurrentUser() {
+        // récupération du current user et verification pour set FAB
+        Observer<List<User>> users = new Observer<List<User>>() {
+            @Override
+            public void onChanged(@Nullable List<User> users) {
+                Log.e(TAG, "getCurrentUser: " + users);
+                for (int i = 0; i < users.size(); i++) {
+                    if (users.get(i).getUid().equals(mainActivityViewModel.getCurrentUserUid())
+                            && users.get(i).getRestaurantPlaceId() == null) {
+                        getButtonWhite();
+                        break;
+                    } else if (users.get(i).getUid().equals(mainActivityViewModel.getCurrentUserUid()) &&
+                            users.get(i).getRestaurantPlaceId().equals(placeId)) {
+                        getButtonGreen();
+                        break;
+                    }
+                }
+            }
+        };
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getUsers().observe(getActivity(), users);
+    }
+
     private void restaurantBooked() {
-        if (placeId.equals(mainActivityViewModel.getRestaurantBooking())) {
-            restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-        }
         restaurantBooking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (restaurantBooking.getBackgroundTintList().equals(ColorStateList.valueOf(Color.WHITE))) {
                     restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
-                    List <String> userID = new ArrayList<>();
-                    userID.add(mainActivityViewModel.getCurrentUserUid());
+                    if (placeId != null) {
+                        mainActivityViewModel.deleteRestaurant(placeId);
+                    }
                     mainActivityViewModel.updateRestaurantPlaceId(placeId);
-                    mainActivityViewModel.createRestaurant(placeId, 0, userID );
+                    mainActivityViewModel.createRestaurant(placeId, 0);
+                    Log.e(TAG, "onClick: in if " + placeId);
                     //mainActivityViewModel.setRestaurantBooking(placeId);
                     //setSharedPreferences(placeId);
                     // incrémenter le coworker number pour le restaurant
@@ -123,9 +285,12 @@ public class RestaurantDetails extends Fragment {
                     restaurantBooking.setBackgroundTintList(ColorStateList.valueOf(Color.WHITE));
                     mainActivityViewModel.updateRestaurantPlaceId(null);
                     mainActivityViewModel.deleteRestaurant(placeId);
+                    Log.e(TAG, "onClick: in else " + placeId);
                     //mainActivityViewModel.setRestaurantBooking(null);
                     //setSharedPreferences(null);
                 }
+                //getUsers(placeId);
+                Log.e(TAG, "onClick: in getUsers " + placeId);
             }
         });
     }
@@ -143,35 +308,6 @@ public class RestaurantDetails extends Fragment {
         editor.apply();
     }
 
-
-    private void initRestaurant(@NonNull View view) {
-        restaurant = getRestaurantById(placeId);
-        restaurantImageView = view.findViewById(R.id.restaurant_details_image_view);
-        restaurantName = view.findViewById(R.id.restaurant_details_name);
-        address = view.findViewById(R.id.restaurant_details_address);
-        restaurantBooking = view.findViewById(R.id.check_fab);
-        call = view.findViewById(R.id.image_view_phone);
-        website = view.findViewById(R.id.image_view_earth);
-        like = view.findViewById(R.id.image_view_star);
-        star = view.findViewById(R.id.restaurant_details_star);
-        getRestaurantPicture(restaurant);
-        restaurantName.setText(restaurant.getName());
-        address.setText(restaurant.getVicinity());
-    }
-
-    private void getRestaurantList() {
-        restaurantList = mainActivityViewModel.getRestaurants().getValue();
-
-    }
-
-    public Result getRestaurantById(String placeId) {
-        for (int i = 0; i < restaurantList.size(); i++) {
-            if (placeId.equals(restaurantList.get(i).getPlaceId())) {
-                return restaurantList.get(i);
-            }
-        }
-        return null;
-    }
 
     private void getRestaurantPicture(Result restaurant) {
         if (restaurant.getPhotos() != null) {
@@ -246,7 +382,6 @@ public class RestaurantDetails extends Fragment {
     }
 
     private void getLike() {
-
         like.setOnClickListener(new View.OnClickListener() {
             int i = 0;
 

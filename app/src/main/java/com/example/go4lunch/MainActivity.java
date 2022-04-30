@@ -188,7 +188,11 @@ public class MainActivity extends AppCompatActivity {
                     if (mainActivityViewModel.getRestaurantBooking()==null) {
                         Toast.makeText(getApplicationContext(), "No restaurant chosen", Toast.LENGTH_LONG).show();
                     }else {
-                        NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
+                        Bundle bundle = new Bundle();
+                        // Mettre l'id du restaurant
+                        bundle.putString("place_id", "test");
+                        //NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
+                        navDrawerController.navigate(menuItem.getItemId(), bundle);
                     }
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);

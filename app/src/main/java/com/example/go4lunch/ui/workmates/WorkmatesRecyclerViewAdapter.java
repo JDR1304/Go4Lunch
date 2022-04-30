@@ -48,7 +48,10 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
         holder.workMatesName.setText(user.getName());
-        holder.workMatesStatus.setText(" Reserve or not reserved");
+        if (user.getRestaurantPlaceId() != null){
+            holder.workMatesStatus.setText(" eating at resto name");
+        }
+
 
         Glide.with(holder.roundView.getContext())
                 .load(user.getUrlPicture())
@@ -58,8 +61,9 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                listener.onClickItem(user.getRestaurantPlaceId());
+                if (user.getRestaurantPlaceId() != null) {
+                    listener.onClickItem(user.getRestaurantPlaceId());
+                }
             }
         });
 

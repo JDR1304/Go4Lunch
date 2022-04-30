@@ -2,27 +2,23 @@ package com.example.go4lunch.model;
 
 import java.util.List;
 
-public class Restaurant {
+public class RestaurantFavorite {
 
     private String uid;
     private int likeNumber;
-    private List <String> userId;
 
-    public Restaurant(String uid, int likeNumber, List<String> userId) {
+
+    public RestaurantFavorite(String uid, int likeNumber) {
         this.uid = uid;
         this.likeNumber = likeNumber;
-        this.userId = userId;
     }
 
     public String getUid(){
         return uid;
     }
+
     public int getLikeNumber() {
         return likeNumber;
-    }
-
-    public List<String> getUserId() {
-        return userId;
     }
 
     public void setUid(String uid){
@@ -33,7 +29,4 @@ public class Restaurant {
         this.likeNumber = likeNumber;
     }
 
-    public void setUserId(List<String> userId) {
-        this.userId = userId;
-    }
 }

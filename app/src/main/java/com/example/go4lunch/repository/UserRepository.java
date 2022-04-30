@@ -108,10 +108,41 @@ public class UserRepository {
         }
     }
 
+
     public String getCurrentUserUID() {
         FirebaseUser user = getCurrentUser();
         return (user != null) ? user.getUid() : null;
     }
+
+    /*public String getCurrentUserRestaurantPlaceID{
+        List<User> users = new ArrayList<>();
+        if (usersList == null) {
+            usersList = new MutableLiveData<>();
+        }
+        this.getUsersCollection()
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            User user = document.toObject(User.class);
+                            users.add(user);
+                            // MutableLivedata
+                            usersList.setValue(users);
+                            for (int i = 0; i<users.size(); i++){
+                                if (users.get(i).getUid().equals(getCurrentUserUID())){
+                                    return document.getData().get(RESTAURANT_PLACE_ID);
+                                }
+                            }
+
+
+                            //Log.e(TAG, document.getId() + " => " + document.getData());
+                        }
+                    } else {
+                        Log.e("error", "Task is not successful");
+                    }
+                });
+    }*/
+
 
     public String getCurrentUserName() {
         FirebaseUser user = getCurrentUser();
@@ -152,7 +183,7 @@ public class UserRepository {
                             users.add(user);
                             // MutableLivedata
                             usersList.setValue(users);
-                            Log.e(TAG, document.getId() + " => " + document.getData());
+                            //Log.e(TAG, document.getId() + " => " + document.getData());
                         }
                     } else {
                         Log.e("error", "Task is not successful");

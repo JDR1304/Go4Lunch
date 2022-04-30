@@ -7,10 +7,9 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.model.User;
+import com.example.go4lunch.model.RestaurantFavorite;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -23,10 +22,11 @@ import java.util.List;
 
 public class RestaurantRepository {
 
-    private static final String COLLECTION_NAME = "restaurants";
+    private static final String COLLECTION_NAME = "restaurantFavorites";
     private static final String LIKE_NUMBER = "likeNumber";
     private static final String USER_ID = "userId";
-    private MutableLiveData<List<Restaurant>> restaurantList;
+    private MutableLiveData <Integer> numberLikeByRestaurant;
+    private MutableLiveData<List<RestaurantFavorite>> restaurantList;
     private static volatile RestaurantRepository instance;
     private CollectionReference collectionReference;
 
@@ -53,14 +53,14 @@ public class RestaurantRepository {
     }
 
     // Create Restaurant in Firestore
-    public void createRestaurant(String uid, int likeNumber, List<String> userId) {
+    public void createRestaurant(String uid, int likeNumber) {
 
-        Restaurant restaurantToCreate = new Restaurant(uid, likeNumber, userId);
+        RestaurantFavorite restaurantFavoriteToCreate = new RestaurantFavorite(uid, likeNumber);
 
         Task<DocumentSnapshot> restaurantData = getRestaurantData(uid);
         // If the restaurant already exist in Firestore, we get his data
         restaurantData.addOnSuccessListener(documentSnapshot -> {
-            this.getRestaurantsCollection().document(uid).set(restaurantToCreate);
+            this.getRestaurantsCollection().document(uid).set(restaurantFavoriteToCreate);
         });
 
     }
@@ -71,8 +71,8 @@ public class RestaurantRepository {
     }
 
     // Get List Restaurant from firestore
-    public LiveData<List<Restaurant>> getRestaurantsList() {
-        List<Restaurant> restaurants = new ArrayList<>();
+    public LiveData<List<RestaurantFavorite>> getRestaurantsList() {
+        List<RestaurantFavorite> restaurantFavorites = new ArrayList<>();
         if (restaurantList == null) {
             restaurantList = new MutableLiveData<>();
         }
@@ -81,10 +81,10 @@ public class RestaurantRepository {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            Restaurant restaurant = document.toObject(Restaurant.class);
-                            restaurants.add(restaurant);
+                            RestaurantFavorite restaurantFavorite = document.toObject(RestaurantFavorite.class);
+                            restaurantFavorites.add(restaurantFavorite);
                             // MutableLivedata
-                            restaurantList.setValue(restaurants);
+                            restaurantList.setValue(restaurantFavorites);
                             Log.e(TAG, document.getId() + " => " + document.getData());
                         }
                     } else {
@@ -102,13 +102,13 @@ public class RestaurantRepository {
 
     public void likeIncrement(String uid) {
         DocumentReference likeIncrement = collectionReference.document(uid);
-        // Automatically increment the like number.
+        // Atomically increment the like number.
         likeIncrement.update(LIKE_NUMBER, FieldValue.increment(1));
     }
 
     public void likeDecrement(String uid) {
         DocumentReference likeDecrement = collectionReference.document(uid);
-        // Automatically decrement the like number.
+        // Atomically decrement the like number.
         likeDecrement.update(LIKE_NUMBER, FieldValue.increment(-1));
 
     }
@@ -124,5 +124,16 @@ public class RestaurantRepository {
         DocumentReference deleteUserId = collectionReference.document(uid);
         // Atomically remove a region from the "regions" array field.
         deleteUserId.update(USER_ID, FieldValue.arrayRemove(userId));
+    }
+
+    public LiveData <Integer> getLikeByRestaurant (String uid){
+        DocumentReference likeByRestaurant = collectionReference.document(uid);
+        likeByRestaurant.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                 numberLikeByRestaurant.setValue((Integer) documentSnapshot.get(LIKE_NUMBER));
+            }
+        });
+        return null;
     }
 }

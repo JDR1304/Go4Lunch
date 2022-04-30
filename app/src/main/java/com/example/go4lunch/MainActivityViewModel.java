@@ -70,10 +70,7 @@ public class MainActivityViewModel extends ViewModel {
         return userRepository.getCurrentUserUID();
     }
 
-    public void updateRestaurantPlaceId(String placeId){
-        restaurantPlaceId = placeId;
-        userRepository.updatePlaceId(placeId);
-    }
+
     public String getRestaurantBooking() {
         return restaurantPlaceId;
     }
@@ -81,13 +78,19 @@ public class MainActivityViewModel extends ViewModel {
 //------------------------------------------------------------------------------------------------
 //RestaurantRepository
 
-    public void createRestaurant(String uid, int likeNumber, List<String> userId){
-        restaurantRepository.createRestaurant(uid, likeNumber, userId);
+    public void createRestaurant(String uid, int likeNumber){
+        restaurantRepository.createRestaurant(uid, likeNumber);
     }
 
     public void deleteRestaurant(String uid){
         restaurantRepository.deleteRestaurantFromFirestore(uid);
     }
+
+    public void updateRestaurantPlaceId(String placeId){
+        restaurantPlaceId = placeId;
+        userRepository.updatePlaceId(placeId);
+    }
+
 
     public void likeIncrement(String uid) {
         restaurantRepository.likeIncrement(uid);

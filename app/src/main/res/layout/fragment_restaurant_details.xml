@@ -11,7 +11,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="200dp"
         android:fitsSystemWindows="true"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -26,7 +26,7 @@
             <ImageView
                 android:id="@+id/restaurant_details_image_view"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="200dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -74,7 +74,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="8dp"
+                    android:padding="5dp"
                     android:background="@color/orange"
                     android:orientation="vertical">
                     <LinearLayout
@@ -134,31 +134,31 @@
 
                         <ImageView
                             android:id="@+id/image_view_phone"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
                             app:srcCompat="@drawable/ic_baseline_local_phone_24"
                             app:tint="@color/orange" />
 
                         <ImageView
                             android:id="@+id/image_view_star"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
                             app:srcCompat="@drawable/ic_baseline_star_24"
                             app:tint="@color/orange" />
 
                         <ImageView
                             android:id="@+id/image_view_earth"
-                            android:layout_width="45dp"
-                            android:layout_height="45dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_weight="1"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
                             app:srcCompat="@drawable/ic_round_south_america_24"
                             app:tint="@color/orange" />
                     </LinearLayout>
@@ -176,8 +176,8 @@
                             android:layout_weight="1"
                             android:gravity="center"
                             android:layout_marginLeft="5dp"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
                             android:text="CALL"
                             android:textColor="@color/orange"
                             android:textStyle="bold"
@@ -189,8 +189,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
                             android:layout_marginLeft="25dp"
                             android:text="LIKE"
                             android:textSize="20dp"
@@ -203,8 +203,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:layout_marginTop="16dp"
-                            android:layout_marginBottom="16dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="8dp"
                             android:text="WEBSITE"
                             android:textColor="@color/orange"
                             android:textStyle="bold"
@@ -223,8 +223,10 @@
                 android:elevation="5dp">
 
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/restaurant_details_recyclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"></androidx.recyclerview.widget.RecyclerView>
+                    android:layout_height="match_parent">
+                </androidx.recyclerview.widget.RecyclerView>
             </androidx.cardview.widget.CardView>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
