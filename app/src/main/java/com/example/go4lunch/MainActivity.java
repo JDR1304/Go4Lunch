@@ -11,6 +11,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -36,6 +37,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
+import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.repository.UserRepository;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private MainActivityViewModel mainActivityViewModel;
     private AppBarConfiguration mAppBarConfiguration;
+    private String placeIdBookedByUser;
 
     //Toolbar custom
     private Toolbar toolbar;
@@ -94,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
         manageApiKey();
         configureToolbar();
 
+        getRestaurantBookedByUser();
+
     }
 
     @Override
@@ -101,6 +106,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         checkIfUserLogged();
         updateGps();
+
     }
 
 
@@ -185,16 +191,14 @@ public class MainActivity extends AppCompatActivity {
                     });
                     return true;
                 case R.id.restaurant_details:
-                    if (mainActivityViewModel.getRestaurantBooking()==null) {
+                    if (placeIdBookedByUser==null) {
                         Toast.makeText(getApplicationContext(), "No restaurant chosen", Toast.LENGTH_LONG).show();
                     }else {
-                        Bundle bundle = new Bundle();
-                        // Mettre l'id du restaurant
+                    Bundle bundle = new Bundle();
+                    bundle.putString("place_id", placeIdBookedByUser);
+                    navDrawerController.navigate(menuItem.getItemId(), bundle);
 
-                        bundle.putString("place_id", mainActivityViewModel.getRestaurantBooking());
-                        NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
-                        navDrawerController.navigate(menuItem.getItemId(), bundle);
-                    }
+                   }
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
 
@@ -286,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        getRestaurantBookedByUser();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
@@ -345,6 +350,17 @@ public class MainActivity extends AppCompatActivity {
     public void manageApiKey(){
         apiKey = getResources().getString(R.string.maps_api_key);
         mainActivityViewModel.setApiKey(apiKey);
+    }
+
+    public void getRestaurantBookedByUser(){
+        Observer <String> placeIdBookByUser = new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                placeIdBookedByUser = s;
+            }
+        };
+        mainActivityViewModel.getChosenRestaurantByUserFromFirestore(mainActivityViewModel.getCurrentUserUid()).observe(this, placeIdBookByUser);
+
     }
 
 }

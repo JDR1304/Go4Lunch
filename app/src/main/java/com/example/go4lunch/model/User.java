@@ -9,17 +9,27 @@ public class User {
     private String useremail;
     private String urlPicture;
     private String restaurantPlaceId;
+    private String restaurantName;
 
     public User() {
     }
 
-    public User(String uid, String email, String name, @Nullable String urlPicture, String restaurantPlaceId) {
+    public User(String uid, String email, String name, @Nullable String urlPicture, String restaurantPlaceId, String restaurantName) {
         this.uid = uid;
         this.username = name;
         this.useremail = email;
         this.urlPicture = urlPicture;
         this.restaurantPlaceId = restaurantPlaceId;
+        this.restaurantName = restaurantName;
 
+    }
+
+    public String getRestaurantName() {
+        return restaurantName;
+    }
+
+    public void setRestaurantName(String restaurantName) {
+        this.restaurantName = restaurantName;
     }
 
     //-----GETTERS-----

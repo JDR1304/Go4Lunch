@@ -52,8 +52,9 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         holder.address.setText(restaurant.getVicinity());
         getOpenHours(holder, restaurant);
         getRestaurantPicture(holder, restaurant);
-        rating = getRating(restaurant);
-
+        if (getRating(restaurant)!=null) {
+            rating = getRating(restaurant);
+        }
         if (rating > 1 && rating < 3) {
             holder.star1.setVisibility(View.VISIBLE);
         } else if (rating >= 3 && rating < 4.4) {

@@ -37,6 +37,8 @@ public class UserRepository {
     private static final String USERNAME_FIELD = "username";
     private static final String EMAIL_FIELD = "useremail";
     private static final String RESTAURANT_PLACE_ID = "restaurantPlaceId";
+    private static final String RESTAURANT_NAME = "restaurantName";
+    private MutableLiveData<String> chosenRestaurantNameByUser;
     private MutableLiveData<List<User>> usersList;
     private MutableLiveData<String> chosenRestaurantByUser;
     private static volatile UserRepository instance;
@@ -87,9 +89,8 @@ public class UserRepository {
             String useremail = user.getEmail();
             String username = user.getDisplayName();
             String urlPicture = (user.getPhotoUrl() != null) ? user.getPhotoUrl().toString() : null;
-            String restaurantPlaceId;
 
-            User userToCreate = new User(uid, useremail, username, urlPicture, null );
+            User userToCreate = new User(uid, useremail, username, urlPicture, null, null );
 
             Task<DocumentSnapshot> userData = getUserData();
             // If the user already exist in Firestore, we get his data
@@ -124,6 +125,14 @@ public class UserRepository {
         String uid = this.getCurrentUserUID();
         if (uid != null) {
             return this.getUsersCollection().document(uid).update(RESTAURANT_PLACE_ID, placeId);
+        } else {
+            return null;
+        }
+    }
+    public Task<Void> updateRestaurantNameChoseByCurrentUserInFirestore(String name){
+        String uid = this.getCurrentUserUID();
+        if (uid != null) {
+            return this.getUsersCollection().document(uid).update(RESTAURANT_NAME, name);
         } else {
             return null;
         }
@@ -164,7 +173,31 @@ public class UserRepository {
         return usersList;
     }
 
-    public LiveData <String> getChosenRestaurantFromUser (String userUid){
+    public LiveData <String> getChosenRestaurantNameFromUser(String userUid){
+        if (chosenRestaurantNameByUser == null) {
+            chosenRestaurantNameByUser = new MutableLiveData<>();
+        }
+        DocumentReference docRef = getUsersCollection().document(userUid);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        chosenRestaurantNameByUser.setValue(document.getString(RESTAURANT_NAME));
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+        return chosenRestaurantByUser;
+    }
+
+    public LiveData <String> getChosenRestaurantIdFromUser(String userUid){
         if (chosenRestaurantByUser == null) {
             chosenRestaurantByUser = new MutableLiveData<>();
         }
@@ -187,7 +220,6 @@ public class UserRepository {
         });
         return chosenRestaurantByUser;
     }
-
     // Delete the User from Firestore
     public void deleteUserFromFirestore() {
         String uid = this.getCurrentUserUID();

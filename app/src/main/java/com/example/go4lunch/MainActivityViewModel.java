@@ -21,11 +21,7 @@ public class MainActivityViewModel extends ViewModel {
 
     public String apiKey;
 
-    public String restaurantPlaceId;
-
-    public List <User> usersList = new ArrayList<>();
-
-    public MutableLiveData <String> restaurantIdKeyLiveData = new MutableLiveData<>();
+    public Restaurant restaurantBookedByUser;
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
@@ -46,22 +42,6 @@ public class MainActivityViewModel extends ViewModel {
     public LiveData<List<Result>> getRestaurants() {
         return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), getApiKey());
     }
-
-    /*public LiveData<String> getRestaurantBooking() {
-        return restaurantIdKeyLiveData;
-    }*/
-
-    /*public void setRestaurantBooking(String restaurantIdKey) {
-        restaurantIdKeyLiveData.postValue(restaurantIdKey);
-    }*/
-    public String getRestaurantBookingByCurrentUser(){
-        return restaurantPlaceId;
-    }
-
-    public void setRestaurantBookingByCurrentUser(String placedId){
-        restaurantPlaceId = placedId;
-    }
-
 
     public String getApiKey(){
         return apiKey;
@@ -85,15 +65,20 @@ public class MainActivityViewModel extends ViewModel {
         return placeId;
     }
 
+    public String updateRestaurantNameChoseByCurrentUserInFirestore(String name){
+        userRepository.updateRestaurantNameChoseByCurrentUserInFirestore(name);
+        return name;
+    }
+
 
     public LiveData <String> getChosenRestaurantByUserFromFirestore (String userUid) {
-        return userRepository.getChosenRestaurantFromUser(userUid);
-
+        return userRepository.getChosenRestaurantIdFromUser(userUid);
     }
 
-    public String getRestaurantBooking() {
-        return restaurantPlaceId;
+    public LiveData <String> getChosenRestaurantNameUserFromFirestore (String userUid) {
+        return userRepository.getChosenRestaurantNameFromUser(userUid);
     }
+
 
 //------------------------------------------------------------------------------------------------
 //RestaurantRepository
@@ -115,6 +100,14 @@ public class MainActivityViewModel extends ViewModel {
         restaurantRepository.deleteRestaurantFromFirestore(uid);
     }
 
+    public Restaurant setRestaurantBooking(Restaurant restaurant) {
+        restaurantBookedByUser = restaurant;
+        return restaurantBookedByUser;
+    }
+
+    public Restaurant getRestaurantBooking() {
+        return restaurantBookedByUser;
+    }
 
     public LiveData <List<String>> getUsersWhoJoinRestaurantFromFirestore(String restaurantPlaceId){
         return restaurantRepository.getUsersWhoJoinRestaurant(restaurantPlaceId);

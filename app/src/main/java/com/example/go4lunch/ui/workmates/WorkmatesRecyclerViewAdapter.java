@@ -48,8 +48,8 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
         holder.workMatesName.setText(user.getName());
-        if (user.getRestaurantPlaceId() != null){
-            holder.workMatesStatus.setText(" eating at resto name");
+        if (user.getRestaurantName() != null){
+            holder.workMatesStatus.setText(" eating at "+user.getRestaurantName());
         }
 
         Glide.with(holder.roundView.getContext())

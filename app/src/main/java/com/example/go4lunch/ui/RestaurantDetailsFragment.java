@@ -278,6 +278,7 @@ public class RestaurantDetailsFragment extends Fragment {
                     if (restaurant != null /*&& restaurantDetailsFromFirestore.getUid().equals(placeId)*/) {
                         restaurant.getUsersWhoChoseRestaurant().add(currentUserUid);
 
+
                     }
                     // if restaurant doesn't exist in Firestore I create a new one
                     else {
@@ -287,16 +288,19 @@ public class RestaurantDetailsFragment extends Fragment {
 
                     }
                     mainActivityViewModel.updatePlaceIdChoseByCurrentUserInFirestore(placeId);
+                    mainActivityViewModel.updateRestaurantNameChoseByCurrentUserInFirestore(restaurant.getName());
                     userRestaurantIdChosen = placeId;
                 } else {
                     getButtonWhite();
                     if (restaurant.getLikeNumber() > 0 || restaurant.getUsersWhoChoseRestaurant().size() > 1) {
                         restaurant.getUsersWhoChoseRestaurant().remove(currentUserUid);
                         mainActivityViewModel.updatePlaceIdChoseByCurrentUserInFirestore(null);
+                        mainActivityViewModel.updateRestaurantNameChoseByCurrentUserInFirestore(null);
                         userRestaurantIdChosen = null;
                     } else {
                         mainActivityViewModel.deleteRestaurantInFirestore(placeId);
                         mainActivityViewModel.updatePlaceIdChoseByCurrentUserInFirestore(null);
+                        mainActivityViewModel.updateRestaurantNameChoseByCurrentUserInFirestore(null);
                         userRestaurantIdChosen = null;
                         restaurant.getUid().equals(null);
                         restaurant = null;
