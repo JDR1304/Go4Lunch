@@ -1,13 +1,7 @@
 package com.example.go4lunch.ui.listview;
 
 
-
-
-import static android.content.ContentValues.TAG;
-
 import android.location.Location;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,26 +9,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
+import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
-import com.example.go4lunch.ui.RestaurantDetails;
 
 import java.util.List;
 
-public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder>  {
+public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder> {
 
     private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
     List<Result> restaurantList;
     MainActivityViewModel mainActivityViewModel;
     private int numberOfCoworker = 4;
-    private int i = 40;
+    private double rating;
     private RetrieveIdRestaurant listener;
 
 
@@ -53,34 +45,33 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ListViewRecyclerViewAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Result restaurant = restaurantList.get(position);
         holder.restaurantName.setText(restaurant.getName());
         holder.distance.setText(Integer.toString(getDistance(restaurant)) + "m");
         holder.address.setText(restaurant.getVicinity());
         getOpenHours(holder, restaurant);
         getRestaurantPicture(holder, restaurant);
+        rating = getRating(restaurant);
 
-        if  (i>0 && i<30) {
+        if (rating > 1 && rating < 3) {
             holder.star1.setVisibility(View.VISIBLE);
-        }
-        else if (i>=30 && i<60) {
+        } else if (rating >= 3 && rating < 4.4) {
             holder.star1.setVisibility(View.VISIBLE);
             holder.star2.setVisibility(View.VISIBLE);
-        }
-
-        else if (i>=60 && i<100) {
+        } else if (rating >= 4.4 && rating <= 5) {
             holder.star1.setVisibility(View.VISIBLE);
             holder.star2.setVisibility(View.VISIBLE);
             holder.star3.setVisibility(View.VISIBLE);
         }
 
-        if (numberOfCoworker>1){
+      /*  if (getNumberOfCoworkerWhoChoseRestaurantInFirestore(restaurant.getPlaceId()) > 0) {
+            numberOfCoworker = getNumberOfCoworkerWhoChoseRestaurantInFirestore(restaurant.getPlaceId());
             holder.coworkerImage.setVisibility(View.VISIBLE);
             holder.coworkerNumber.setVisibility(View.VISIBLE);
-            holder.coworkerNumber.setText("("+Integer.toString(numberOfCoworker)+")");
+            holder.coworkerNumber.setText("(" + Integer.toString(numberOfCoworker) + ")");
 
-        }
+        }*/
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +108,10 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         }
     }
 
+    private Double getRating(Result restaurant) {
+        return restaurant.getRating();
+    }
+
     private int getDistance(@NonNull Result restaurant) {
         Location currentLocation = new Location("");
         Location restaurantLocation = new Location("");
@@ -127,6 +122,18 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         int distance = (int) currentLocation.distanceTo(restaurantLocation);
         return distance;
     }
+
+    /*private int getNumberOfCoworkerWhoChoseRestaurantInFirestore(String placeId) {
+        List<Restaurant> restaurants = mainActivityViewModel.getRestaurantListFromFirestore().getValue();
+        if (restaurants != null) {
+            for (int i = 0; i < restaurants.size(); i++) {
+                if (restaurants.get(i).getUid().equals(placeId)) {
+                    return restaurants.get(i).getUsersWhoChoseRestaurant().size();
+                }
+            }
+        }
+        return 0;
+    }*/
 
     @Override
     public int getItemCount() {

@@ -1,4 +1,4 @@
-package com.example.go4lunch.repository;
+package com.example.go4lunch.datasource;
 
 import static android.content.ContentValues.TAG;
 
@@ -14,24 +14,24 @@ import com.example.go4lunch.network.NearbyRestaurants;
 
 import java.util.List;
 
-public class ApiRepository {
+public class FetchRestaurantInGoogleAPI {
 
     private static final float DISTANCE_MIN_FOR_REFRESH_DATA = 50;
-    private static volatile ApiRepository instance;
+    private static volatile FetchRestaurantInGoogleAPI instance;
     MutableLiveData<List<Result>> restaurantsList = new MutableLiveData<>();
     private Location oldLocation;
 
-    private ApiRepository() {
+    private FetchRestaurantInGoogleAPI() {
     }
 
-    public static ApiRepository getInstance() {
-        ApiRepository result = instance;
+    public static FetchRestaurantInGoogleAPI getInstance() {
+        FetchRestaurantInGoogleAPI result = instance;
         if (result != null) {
             return result;
         }
-        synchronized (ApiRepository.class) {
+        synchronized (FetchRestaurantInGoogleAPI.class) {
             if (instance == null) {
-                instance = new ApiRepository();
+                instance = new FetchRestaurantInGoogleAPI();
             }
             return instance;
         }

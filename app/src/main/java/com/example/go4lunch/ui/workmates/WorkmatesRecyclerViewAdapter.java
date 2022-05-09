@@ -52,7 +52,6 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
             holder.workMatesStatus.setText(" eating at resto name");
         }
 
-
         Glide.with(holder.roundView.getContext())
                 .load(user.getUrlPicture())
                 .apply(RequestOptions.circleCropTransform())

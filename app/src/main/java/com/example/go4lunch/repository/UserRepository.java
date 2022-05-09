@@ -20,6 +20,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -37,6 +38,7 @@ public class UserRepository {
     private static final String EMAIL_FIELD = "useremail";
     private static final String RESTAURANT_PLACE_ID = "restaurantPlaceId";
     private MutableLiveData<List<User>> usersList;
+    private MutableLiveData<String> chosenRestaurantByUser;
     private static volatile UserRepository instance;
 
 
@@ -108,48 +110,17 @@ public class UserRepository {
         }
     }
 
-
     public String getCurrentUserUID() {
         FirebaseUser user = getCurrentUser();
         return (user != null) ? user.getUid() : null;
     }
-
-    /*public String getCurrentUserRestaurantPlaceID{
-        List<User> users = new ArrayList<>();
-        if (usersList == null) {
-            usersList = new MutableLiveData<>();
-        }
-        this.getUsersCollection()
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            User user = document.toObject(User.class);
-                            users.add(user);
-                            // MutableLivedata
-                            usersList.setValue(users);
-                            for (int i = 0; i<users.size(); i++){
-                                if (users.get(i).getUid().equals(getCurrentUserUID())){
-                                    return document.getData().get(RESTAURANT_PLACE_ID);
-                                }
-                            }
-
-
-                            //Log.e(TAG, document.getId() + " => " + document.getData());
-                        }
-                    } else {
-                        Log.e("error", "Task is not successful");
-                    }
-                });
-    }*/
-
 
     public String getCurrentUserName() {
         FirebaseUser user = getCurrentUser();
         return (user != null) ? user.getDisplayName() : null;
     }
 
-    public Task<Void> updatePlaceId(String placeId){
+    public Task<Void> updatePlaceIdChoseByCurrentUserInFirestore(String placeId){
         String uid = this.getCurrentUserUID();
         if (uid != null) {
             return this.getUsersCollection().document(uid).update(RESTAURANT_PLACE_ID, placeId);
@@ -191,6 +162,30 @@ public class UserRepository {
                 });
 
         return usersList;
+    }
+
+    public LiveData <String> getChosenRestaurantFromUser (String userUid){
+        if (chosenRestaurantByUser == null) {
+            chosenRestaurantByUser = new MutableLiveData<>();
+        }
+        DocumentReference docRef = getUsersCollection().document(userUid);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        chosenRestaurantByUser.setValue(document.getString(RESTAURANT_PLACE_ID));
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
+        return chosenRestaurantByUser;
     }
 
     // Delete the User from Firestore

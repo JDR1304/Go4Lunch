@@ -30,7 +30,6 @@ import java.util.List;
 
 public class WorkmatesFragment extends Fragment {
 
-    //private WorkmatesViewModel workmatesViewModel;
     private MainActivityViewModel mainActivityViewModel;
     private FragmentWorkmatesBinding binding;
     private RecyclerView recyclerView;

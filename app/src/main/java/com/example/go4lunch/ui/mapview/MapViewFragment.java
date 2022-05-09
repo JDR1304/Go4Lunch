@@ -2,7 +2,6 @@ package com.example.go4lunch.ui.mapview;
 
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,6 +17,7 @@ import androidx.navigation.Navigation;
 
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -39,13 +39,15 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     private SupportMapFragment mapFragment;
     private MainActivityViewModel mainActivityViewModel;
     private static final int DEFAULT_ZOOM = 15;
-    private Marker marker;
     private Location location;
     private String placeId;
     private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
-    private final String PREFERENCES_KEY = "PREFERENCES_KEY";
 
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -61,8 +63,6 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
-        SharedPreferences preferences = getActivity().getApplicationContext().getSharedPreferences("preferences", 0);
-        mainActivityViewModel.setRestaurantBooking(preferences.getString(PREFERENCES_KEY, null));
         mainActivityViewModel.getLocation().observe(this, new Observer<Location>() {
             @Override
             public void onChanged(Location location) {
@@ -82,13 +82,12 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         // Add a marker at current place and move the camera
         getRestaurant();
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
-        marker = mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
+        mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
 
     }
 
     public void getRestaurant() {
-
         // Get Users From Random API
         Observer<List<Result>> results = new Observer<List<Result>>() {
             @Override
@@ -96,13 +95,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                 LatLng restaurantPosition;
                 for (int i = 0; i < results.size(); i++) {
                     restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
-                    if (results.get(i).getPlaceId().equals(mainActivityViewModel.getRestaurantBooking())) {
-                        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                                .position(restaurantPosition).title(results.get(i).getName()));
-                    } else {
-                        marker = mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
-                    }
-
+                    mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
                 }
                 mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
@@ -128,6 +121,23 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mainActivityViewModel.getRestaurants().observe(this, results);
     }
 
+    public void getRestaurantFromFirestore() {
+        Observer<List<Restaurant>> restaurants = new Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> restaurantList) {
+                if (restaurantList != null) {
+                    for (int i = 0; i < restaurantList.size(); i++) {
+                        LatLng restaurantPosition = new LatLng(restaurantList.get(i).getGeometry().getLocation().getLat(), restaurantList.get(i).getGeometry().getLocation().getLng());
+                        restaurantList.get(i).getGeometry();
+                        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                                .position(restaurantPosition).title(restaurantList.get(i).getName()));
+                    }
+                }
+            }
+        };
+        mainActivityViewModel.getRestaurantListFromFirestore().observe(this, restaurants);
+    }
+
     @Override
     public boolean onMyLocationButtonClick() {
 
@@ -137,6 +147,12 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     @Override
     public void onMyLocationClick(@NonNull Location location) {
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getRestaurantFromFirestore();
     }
 
     @Override

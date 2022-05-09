@@ -190,8 +190,9 @@ public class MainActivity extends AppCompatActivity {
                     }else {
                         Bundle bundle = new Bundle();
                         // Mettre l'id du restaurant
-                        bundle.putString("place_id", "test");
-                        //NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
+
+                        bundle.putString("place_id", mainActivityViewModel.getRestaurantBooking());
+                        NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
                         navDrawerController.navigate(menuItem.getItemId(), bundle);
                     }
                     //This is for closing the drawer after acting on it

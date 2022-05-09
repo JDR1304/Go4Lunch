@@ -40,7 +40,7 @@
 
     <fragment
         android:id="@+id/restaurant_details"
-        android:name="com.example.go4lunch.ui.RestaurantDetails"
+        android:name="com.example.go4lunch.ui.RestaurantDetailsFragment"
         android:label="fragment_restaurant_details"
         tools:layout="@layout/fragment_restaurant_details">
         <argument

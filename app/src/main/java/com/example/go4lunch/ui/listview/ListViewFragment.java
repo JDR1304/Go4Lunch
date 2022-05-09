@@ -23,15 +23,12 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentListViewBinding;
 import com.example.go4lunch.modelApiNearby.Result;
-import com.example.go4lunch.ui.RestaurantDetailsArgs;
+//import com.example.go4lunch.ui.RestaurantDetailsArgs;
 
 import java.util.List;
 
 public class ListViewFragment extends Fragment {
 
-    /*interface RetrieveIdRestaurant {
-        void onClickItem(String placeId);
-    }*/
 
     private FragmentListViewBinding binding;
     private MainActivityViewModel mainActivityViewModel;
