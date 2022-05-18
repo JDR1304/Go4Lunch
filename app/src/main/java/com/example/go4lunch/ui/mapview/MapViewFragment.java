@@ -1,9 +1,12 @@
 package com.example.go4lunch.ui.mapview;
 
 
+import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +84,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mMap.setOnMyLocationClickListener(this);
         // Add a marker at current place and move the camera
         getRestaurant();
+        getPredictionEstablishment();
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
@@ -139,6 +143,17 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
             }
         };
         mainActivityViewModel.getRestaurantListFromFirestore().observe(this, restaurants);
+    }
+
+    public void getPredictionEstablishment (){
+        Observer <List<String>> establishments = new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> strings) {
+                Log.e(TAG, "onChanged: MapFragment" +strings );
+
+            }
+        };
+        mainActivityViewModel.getPredictionEstablishmentList().observe(this, establishments);
     }
 
     @Override

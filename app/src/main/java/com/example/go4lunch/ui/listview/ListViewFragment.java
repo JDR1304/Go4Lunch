@@ -55,6 +55,7 @@ public class ListViewFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        getPredictionEstablishment();
         getRestaurants();
     }
 
@@ -81,15 +82,16 @@ public class ListViewFragment extends Fragment {
         mainActivityViewModel.getRestaurants().observe(this, results);
     }
 
-    /*public void getPredictionEstablishment (){
+    public void getPredictionEstablishment (){
         Observer <List<String>> establishments = new Observer<List<String>>() {
             @Override
             public void onChanged(List<String> strings) {
+                Log.e(TAG, "onChanged: listFragment" +strings );
 
             }
         };
         mainActivityViewModel.getPredictionEstablishmentList().observe(this, establishments);
-    }*/
+    }
 
 
     @Override

@@ -25,6 +25,8 @@ public class MainActivityViewModel extends ViewModel {
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
+    public MutableLiveData<List<String>> establishmentPrediction = new MutableLiveData<>();
+
     private UserRepository userRepository = UserRepository.getInstance();
 
     private RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
@@ -103,8 +105,12 @@ public class MainActivityViewModel extends ViewModel {
         restaurantRepository.likeDecrement(uid);
     }
 
- /*   public LiveData <List<String>> getPredictionEstablishmentList(LiveData <List<String>> predictionList){
-        return predictionList;
-    }*/
+   public void setPredictionEstablishmentList(List<String> predictionList){
+        establishmentPrediction.setValue(predictionList);
+    }
+
+    public LiveData<List<String>> getPredictionEstablishmentList(){
+        return establishmentPrediction;
+    }
 }
 

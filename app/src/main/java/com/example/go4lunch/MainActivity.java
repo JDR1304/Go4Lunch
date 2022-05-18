@@ -465,7 +465,7 @@ public class MainActivity extends AppCompatActivity {
             for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
                 predictionList.add(prediction.getPrimaryText(null).toString());
             }
-            getPredictionList(predictionList);
+            mainActivityViewModel.setPredictionEstablishmentList(predictionList);
             Log.e(TAG, "getRestaurantByName: at the end " + predictionList);
 
         }).addOnFailureListener((exception) -> {
@@ -475,14 +475,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    public void getPredictionList (List <String> predictionList){
-        if (liveDataPredictionEstablishmentList == null){
-            liveDataPredictionEstablishmentList = new MutableLiveData<>();
-        }
-        liveDataPredictionEstablishmentList.setValue(predictionList);
-        mainActivityViewModel.getPredictionEstablishmentList(liveDataPredictionEstablishmentList);
     }
 
     public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
