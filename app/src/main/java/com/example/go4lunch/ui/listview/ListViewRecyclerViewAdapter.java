@@ -15,16 +15,15 @@ import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
-import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
 
 import java.util.List;
 
-public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder> {
+public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder>  {
 
     private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
-    List<Result> restaurantList;
-    MainActivityViewModel mainActivityViewModel;
+    private List<Result> restaurantList;
+    private MainActivityViewModel mainActivityViewModel;
     private int numberOfCoworker = 4;
     private double rating;
     private RetrieveIdRestaurant listener;
@@ -40,7 +39,7 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.listview_recyclerview_item, parent, false);
+                .inflate(R.layout.fragment_list_view_item, parent, false);
         return new ViewHolder(view);
     }
 
@@ -140,7 +139,6 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
     public int getItemCount() {
         return restaurantList.size();
     }
-
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 

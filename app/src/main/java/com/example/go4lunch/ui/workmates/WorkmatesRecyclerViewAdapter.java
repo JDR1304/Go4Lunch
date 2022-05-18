@@ -1,8 +1,5 @@
 package com.example.go4lunch.ui.workmates;
 
-import static android.content.ContentValues.TAG;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +25,7 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     private RetrieveIdRestaurant listener;
     private MainActivityViewModel mainActivityViewModel;
 
-
+    public WorkmatesRecyclerViewAdapter(){}
 
     public WorkmatesRecyclerViewAdapter(List<User> users,MainActivityViewModel mainActivityViewModel, RetrieveIdRestaurant listener) {
         this.users = users;
@@ -40,7 +37,7 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.workmates_recycler_view_item, parent, false);
+                .inflate(R.layout.fragment_workmates_item, parent, false);
         return new ViewHolder(view);
     }
 

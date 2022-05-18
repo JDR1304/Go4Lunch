@@ -40,6 +40,13 @@
 
     <string name="title_activity_maps">MapsActivity</string>
     <string name="maps_api_key">AIzaSyD6pekqGKHnG9bm4jbb21ges37dv2UgH5w</string>
+    <string name="search">search</string>
+    <string name="msg_token_fmt">msg token</string>
+    <string name="default_notification_channel_id">channel id default</string>
+    <string name="search_label">Go4Lunch</string>
+    <string name="search_hint">Restaurant name</string>
+    <string name="channel_name">notification channel</string>
+    <string name="channel_description">channel description</string>
 
 
 </resources>

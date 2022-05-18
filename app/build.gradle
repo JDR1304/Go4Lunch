@@ -83,7 +83,7 @@ dependencies {
     //Firebase
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
     implementation 'com.google.firebase:firebase-analytics'
-
+    implementation 'com.google.firebase:firebase-messaging'
     //Firebase UI
     implementation 'com.firebaseui:firebase-ui-auth:6.4.0'
     implementation 'com.firebaseui:firebase-ui-firestore:8.0.0'
@@ -118,4 +118,6 @@ dependencies {
     // Retrofit HTTP request
     implementation 'com.squareup.retrofit2:retrofit:2.4.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
+    //Notification
+    implementation "androidx.core:core:1.6.0"
 }

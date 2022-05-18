@@ -198,26 +198,28 @@ public class UserRepository {
     }
 
     public LiveData <String> getChosenRestaurantIdFromUser(String userUid){
-        if (chosenRestaurantByUser == null) {
-            chosenRestaurantByUser = new MutableLiveData<>();
-        }
-        DocumentReference docRef = getUsersCollection().document(userUid);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        chosenRestaurantByUser.setValue(document.getString(RESTAURANT_PLACE_ID));
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
+        if (userUid != null){
+            if (chosenRestaurantByUser == null) {
+                chosenRestaurantByUser = new MutableLiveData<>();
             }
-        });
+            DocumentReference docRef = getUsersCollection().document(userUid);
+            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            chosenRestaurantByUser.setValue(document.getString(RESTAURANT_PLACE_ID));
+                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        } else {
+                            Log.d(TAG, "No such document");
+                        }
+                    } else {
+                        Log.d(TAG, "get failed with ", task.getException());
+                    }
+                }
+            });
+        }
         return chosenRestaurantByUser;
     }
     // Delete the User from Firestore

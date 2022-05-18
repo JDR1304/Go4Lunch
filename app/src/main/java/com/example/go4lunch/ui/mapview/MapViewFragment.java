@@ -129,9 +129,12 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                     for (int i = 0; i < restaurantList.size(); i++) {
                         LatLng restaurantPosition = new LatLng(restaurantList.get(i).getGeometry().getLocation().getLat(), restaurantList.get(i).getGeometry().getLocation().getLng());
                         restaurantList.get(i).getGeometry();
-                        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
-                                .position(restaurantPosition).title(restaurantList.get(i).getName()));
+                        if (mMap != null) {
+                            mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN))
+                                    .position(restaurantPosition).title(restaurantList.get(i).getName()));
+                        }
                     }
+
                 }
             }
         };

@@ -70,13 +70,8 @@ public class MainActivityViewModel extends ViewModel {
         return name;
     }
 
-
     public LiveData <String> getChosenRestaurantByUserFromFirestore (String userUid) {
         return userRepository.getChosenRestaurantIdFromUser(userUid);
-    }
-
-    public LiveData <String> getChosenRestaurantNameUserFromFirestore (String userUid) {
-        return userRepository.getChosenRestaurantNameFromUser(userUid);
     }
 
 
@@ -100,25 +95,16 @@ public class MainActivityViewModel extends ViewModel {
         restaurantRepository.deleteRestaurantFromFirestore(uid);
     }
 
-    public Restaurant setRestaurantBooking(Restaurant restaurant) {
-        restaurantBookedByUser = restaurant;
-        return restaurantBookedByUser;
-    }
-
-    public Restaurant getRestaurantBooking() {
-        return restaurantBookedByUser;
-    }
-
-    public LiveData <List<String>> getUsersWhoJoinRestaurantFromFirestore(String restaurantPlaceId){
-        return restaurantRepository.getUsersWhoJoinRestaurant(restaurantPlaceId);
-    }
-
     public void likeIncrement(String uid) {
         restaurantRepository.likeIncrement(uid);
     }
+
     public void likeDecrement(String uid) {
         restaurantRepository.likeDecrement(uid);
     }
 
+ /*   public LiveData <List<String>> getPredictionEstablishmentList(LiveData <List<String>> predictionList){
+        return predictionList;
+    }*/
 }
 

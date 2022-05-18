@@ -1,16 +1,19 @@
 package com.example.go4lunch;
 
-import static android.content.ContentValues.TAG;
 import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -18,18 +21,30 @@ import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+
 import android.Manifest;
+import android.app.AlarmManager;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,19 +52,28 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
-import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.repository.UserRepository;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -64,6 +88,13 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityViewModel mainActivityViewModel;
     private AppBarConfiguration mAppBarConfiguration;
     private String placeIdBookedByUser;
+
+    //Notification
+    private final String CHANNEL_ID = "CHANNEL_ID";
+    private final int NOTIFICATION_ID = 100;
+
+    //Prediction List
+    MutableLiveData <List<String>> liveDataPredictionEstablishmentList;
 
     //Toolbar custom
     private Toolbar toolbar;
@@ -83,7 +114,11 @@ public class MainActivity extends AppCompatActivity {
 
     //private UserManager userManager = UserManager.getInstance();
     private UserRepository userRepository = UserRepository.getInstance();
-    FirebaseUser user;
+    private FirebaseUser user;
+    private List<String> restaurantListName = new ArrayList<>();
+
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
 
     @Override
@@ -93,22 +128,24 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+
         updateGps();
         manageApiKey();
         configureToolbar();
-
         getRestaurantBookedByUser();
+        createNotificationChannel();
+        notification();
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        getRestaurantBookedByUser();
         checkIfUserLogged();
         updateGps();
 
     }
-
 
     private void checkIfUserLogged() {
         // Login/Profile Button
@@ -170,7 +207,7 @@ public class MainActivity extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                 R.id.navigation_map_view, R.id.navigation_workmates,R.id.navigation_list_view)
+                R.id.navigation_map_view, R.id.navigation_workmates, R.id.navigation_list_view)
                 .setOpenableLayout(drawer)
                 .build();
 
@@ -191,14 +228,14 @@ public class MainActivity extends AppCompatActivity {
                     });
                     return true;
                 case R.id.restaurant_details:
-                    if (placeIdBookedByUser==null) {
+                    if (placeIdBookedByUser == null) {
                         Toast.makeText(getApplicationContext(), "No restaurant chosen", Toast.LENGTH_LONG).show();
-                    }else {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("place_id", placeIdBookedByUser);
-                    navDrawerController.navigate(menuItem.getItemId(), bundle);
+                    } else {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("place_id", placeIdBookedByUser);
+                        navDrawerController.navigate(menuItem.getItemId(), bundle);
 
-                   }
+                    }
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
 
@@ -208,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
                     return true;
+
             }
             //This is for maintaining the behavior of the Navigation view
             NavigationUI.onNavDestinationSelected(menuItem, navDrawerController);
@@ -217,11 +255,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        return super.onOptionsItemSelected(item);
+    }
+
     private void uiBottomNavigation() {
         NavController navBottomController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupWithNavController(binding.bottomNavigation.navView, navBottomController);
     }
-
 
 
     private void startSignInActivity() {
@@ -247,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         this.handleResponseAfterSignIn(requestCode, resultCode, data);
-
     }
 
     // Show Snack Bar with a message
@@ -285,6 +326,32 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                getRestaurantByName(newText);
+                //doSearch(newText);
+                Log.e(TAG, "onQueryTextChange: " + newText);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Toast.makeText(MainActivity.this, "queryTextSubmit ", Toast.LENGTH_LONG).show();
+
+
+                return false;
+            }
+        });
         return true;
     }
 
@@ -347,19 +414,116 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void manageApiKey(){
+    public void manageApiKey() {
         apiKey = getResources().getString(R.string.maps_api_key);
         mainActivityViewModel.setApiKey(apiKey);
     }
 
-    public void getRestaurantBookedByUser(){
-        Observer <String> placeIdBookByUser = new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                placeIdBookedByUser = s;
+    public void getRestaurantBookedByUser() {
+        if (mainActivityViewModel.getChosenRestaurantByUserFromFirestore(mainActivityViewModel.getCurrentUserUid()) != null) {
+            Observer<String> placeIdBookByUser = new Observer<String>() {
+                @Override
+                public void onChanged(String s) {
+                    placeIdBookedByUser = s;
+                }
+            };
+            mainActivityViewModel.getChosenRestaurantByUserFromFirestore(mainActivityViewModel.getCurrentUserUid()).observe(this, placeIdBookByUser);
+        }
+    }
+
+    public void getRestaurantByName(String query) {
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), mainActivityViewModel.getApiKey());
+        }
+        List<String> predictionList = new ArrayList<>();
+
+        // Create a new Places client instance.
+        PlacesClient placesClient = Places.createClient(this);
+        //Current location
+        Location location = mainActivityViewModel.getLocation().getValue();
+        // Create a RectangularBounds object.
+        //get establishment around 1500 meters
+        RectangularBounds bounds = RectangularBounds.newInstance(
+                getCoordinate(location.getLatitude(), location.getLongitude(), -150, -150),
+                getCoordinate(location.getLatitude(), location.getLongitude(), 150, 150));
+        // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
+        // and once again when the user makes a selection (for example when calling fetchPlace()).
+        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+
+        // Use the builder to create a FindAutocompletePredictionsRequest.
+        FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                // Call either setLocationBias() OR setLocationRestriction().
+                .setLocationBias(bounds)
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                .setSessionToken(token)
+                .setQuery(query)
+                .build();
+
+        placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
+            predictionList.clear();
+            for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+                predictionList.add(prediction.getPrimaryText(null).toString());
             }
-        };
-        mainActivityViewModel.getChosenRestaurantByUserFromFirestore(mainActivityViewModel.getCurrentUserUid()).observe(this, placeIdBookByUser);
+            getPredictionList(predictionList);
+            Log.e(TAG, "getRestaurantByName: at the end " + predictionList);
+
+        }).addOnFailureListener((exception) -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                Log.e(TAG, "Place not found: " + apiException.getStatusCode());
+            }
+        });
+
+    }
+
+    public void getPredictionList (List <String> predictionList){
+        if (liveDataPredictionEstablishmentList == null){
+            liveDataPredictionEstablishmentList = new MutableLiveData<>();
+        }
+        liveDataPredictionEstablishmentList.setValue(predictionList);
+        mainActivityViewModel.getPredictionEstablishmentList(liveDataPredictionEstablishmentList);
+    }
+
+    public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
+        double lat = lat0 + (180 / Math.PI) * (dy / 6378137);
+        double lng = lng0 + (180 / Math.PI) * (dx / 6378137) / Math.cos(lat0);
+        return new LatLng(lat, lng);
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    public void notification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_baseline_notifications)
+                .setContentTitle("Lunch Time")
+                .setContentText("go to eat")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        // notificationId is a unique int for each notification that you must define
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    public void getAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("any_data", 123);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
     }
 

@@ -47,6 +47,10 @@ public class ListViewFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
 
     @Override
     public void onResume() {
@@ -77,20 +81,15 @@ public class ListViewFragment extends Fragment {
         mainActivityViewModel.getRestaurants().observe(this, results);
     }
 
-    private Result getRestaurantId(List<Result> restaurants, String placeId) {
-        for (int i = 0; i < restaurants.size(); i++) {
-            if (restaurants.get(i).getPlaceId().equals(placeId)) {
-                return restaurants.get(i);
+    /*public void getPredictionEstablishment (){
+        Observer <List<String>> establishments = new Observer<List<String>>() {
+            @Override
+            public void onChanged(List<String> strings) {
+
             }
-        }
-        return null;
-    }
-
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-    }
+        };
+        mainActivityViewModel.getPredictionEstablishmentList().observe(this, establishments);
+    }*/
 
 
     @Override
