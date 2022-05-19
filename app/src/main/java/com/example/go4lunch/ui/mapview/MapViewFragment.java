@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -41,9 +42,11 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     private GoogleMap mMap;
     private SupportMapFragment mapFragment;
     private MainActivityViewModel mainActivityViewModel;
-    private static final int DEFAULT_ZOOM = 15;
+    private static final int DEFAULT_ZOOM = 14;
     private Location location;
     private String placeId;
+    private List <Result> restaurants = new ArrayList<>();
+    private Marker marker;
     private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
 
 
@@ -58,7 +61,6 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         return viewMap;
 
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -96,6 +98,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         Observer<List<Result>> results = new Observer<List<Result>>() {
             @Override
             public void onChanged(List<Result> results) {
+                restaurants.addAll(results);
                 LatLng restaurantPosition;
                 for (int i = 0; i < results.size(); i++) {
                     restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
@@ -145,11 +148,26 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mainActivityViewModel.getRestaurantListFromFirestore().observe(this, restaurants);
     }
 
-    public void getPredictionEstablishment (){
-        Observer <List<String>> establishments = new Observer<List<String>>() {
+    public void getPredictionEstablishment() {
+        Observer<List<String>> establishments = new Observer<List<String>>() {
             @Override
-            public void onChanged(List<String> strings) {
-                Log.e(TAG, "onChanged: MapFragment" +strings );
+            public void onChanged(List<String> predictions) {
+                Log.e(TAG, "onChanged: MapFragment" + predictions);
+                if (predictions.size() > 0) {
+                    for (int i = 0; i<predictions.size(); i++){
+                        for (int j =0; j<restaurants.size(); j++){
+                            if (predictions.get(i).equals(restaurants.get(j).getName())){
+                                mMap.clear();
+                                LatLng restaurantPosition = new LatLng(restaurants.get(j).getGeometry().getLocation().getLat(), restaurants.get(j).getGeometry().getLocation().getLng());
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(restaurantPosition).title(restaurants.get(j).getName()));
+                            }
+                        }
+                    }
+
+                } else {
+                    getRestaurant();
+                }
 
             }
         };
