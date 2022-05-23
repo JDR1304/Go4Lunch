@@ -23,8 +23,11 @@ import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentListViewBinding;
 import com.example.go4lunch.modelApiNearby.Result;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 //import com.example.go4lunch.ui.RestaurantDetailsArgs;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ListViewFragment extends Fragment {
@@ -35,7 +38,8 @@ public class ListViewFragment extends Fragment {
     private RecyclerView recyclerView;
     private ListViewRecyclerViewAdapter listViewRecyclerViewAdapter;
     private ListViewFragmentDirections.ActionNavigationListViewToNavigationRestaurantDetails action;
-    private Context context = getContext();
+    private List <Result> restaurants = new ArrayList<>();
+    private List <Result> predictionsList = new ArrayList<>();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -65,7 +69,8 @@ public class ListViewFragment extends Fragment {
         Observer<List<Result>> results = new Observer<List<Result>>() {
             @Override
             public void onChanged(List<Result> results) {
-                listViewRecyclerViewAdapter = new ListViewRecyclerViewAdapter(results, mainActivityViewModel, new RetrieveIdRestaurant() {
+                restaurants.addAll(results);
+                listViewRecyclerViewAdapter = new ListViewRecyclerViewAdapter(restaurants, mainActivityViewModel, new RetrieveIdRestaurant() {
 
                     @Override
                     public void onClickItem(String placeId) {
@@ -85,8 +90,27 @@ public class ListViewFragment extends Fragment {
     public void getPredictionEstablishment (){
         Observer <List<String>> establishments = new Observer<List<String>>() {
             @Override
-            public void onChanged(List<String> strings) {
-                Log.e(TAG, "onChanged: listFragment" +strings );
+            public void onChanged(List<String> predictions) {
+                Log.e(TAG, "onChanged: MapFragment" + predictions);
+                if (predictions.size() > 0) {
+                    predictionsList.clear();
+                    for (int i = 0; i<predictions.size(); i++){
+                        for (int j =0; j<restaurants.size(); j++){
+                            if (predictions.get(i).equals(restaurants.get(j).getName())){
+                                predictionsList.add(restaurants.get(j));
+                            }
+                        }
+                    }
+                    if (predictionsList.size()>0) {
+                        restaurants.clear();
+                        restaurants.addAll(predictionsList);
+                        recyclerView.setAdapter(listViewRecyclerViewAdapter);
+                        listViewRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    restaurants.clear();
+                    getRestaurants();
+                }
 
             }
         };

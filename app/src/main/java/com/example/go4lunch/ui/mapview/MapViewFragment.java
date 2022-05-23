@@ -91,6 +91,15 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
 
+
+      /*  LatLng southWest = new LatLng(location.getLatitude() - 0.01, location.getLongitude()-0.014);
+        LatLng northEast = new LatLng(location.getLatitude() + 0.01, location.getLongitude() + 0.014);
+
+        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .position(southWest));
+        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
+                .position(northEast));*/
+
     }
 
     public void getRestaurant() {
