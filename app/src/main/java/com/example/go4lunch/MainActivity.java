@@ -20,6 +20,9 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 
 import android.Manifest;
@@ -39,6 +42,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -73,10 +77,14 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -89,12 +97,10 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private String placeIdBookedByUser;
 
-    //Notification
-    private final String CHANNEL_ID = "CHANNEL_ID";
-    private final int NOTIFICATION_ID = 100;
+
 
     //Prediction List
-    MutableLiveData <List<String>> liveDataPredictionEstablishmentList;
+    MutableLiveData<List<String>> liveDataPredictionEstablishmentList;
 
     //Toolbar custom
     private Toolbar toolbar;
@@ -133,8 +139,10 @@ public class MainActivity extends AppCompatActivity {
         manageApiKey();
         configureToolbar();
         getRestaurantBookedByUser();
-        createNotificationChannel();
-        notification();
+        //createNotificationChannel();
+        //notification();
+        scheduleWorker();
+        //getTimeDuration();
 
     }
 
@@ -240,8 +248,10 @@ public class MainActivity extends AppCompatActivity {
                     drawer.closeDrawer(GravityCompat.START);
 
                     return true;
+
                 case R.id.nav_settings:
                     Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
+                    navDrawerController.navigate(R.id.nav_settings);
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
                     return true;
@@ -444,13 +454,11 @@ public class MainActivity extends AppCompatActivity {
         Location location = mainActivityViewModel.getLocation().getValue();
         // Create a RectangularBounds object.
         //get establishment around 1500 meters
-        LatLng southWest = new LatLng(location.getLatitude() - 0.01, location.getLongitude()-0.014);
-        LatLng northEast = new LatLng(location.getLatitude() + 0.01, location.getLongitude() + 0.014);
-        RectangularBounds bounds = RectangularBounds.newInstance(southWest,northEast);
-        Log.e(TAG, "getRestaurantByName: rectangle sud est"+southWest+ " nord est"+ northEast );
+        LatLng southWest = new LatLng(location.getLatitude() - 0.015, location.getLongitude() - 0.0145);
+        LatLng northEast = new LatLng(location.getLatitude() + 0.015, location.getLongitude() + 0.0145);
+        RectangularBounds bounds = RectangularBounds.newInstance(southWest, northEast);
+        Log.e(TAG, "getRestaurantByName: rectangle sud est" + southWest + " nord est" + northEast);
 
-                /*getCoordinate(location.getLatitude(), location.getLongitude(), -150, -150),
-                getCoordinate(location.getLatitude(), location.getLongitude(), 150, 150));*/
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).
         AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
@@ -481,13 +489,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public static LatLng getCoordinate(double lat0, double lng0, long dy, long dx) {
-        double lat = lat0 + (180 / Math.PI) * (dy / 6378137);
-        double lng = lng0 + (180 / Math.PI) * (dx / 6378137) / Math.cos(lat0);
-        return new LatLng(lat, lng);
-    }
-
-    private void createNotificationChannel() {
+  /*  private void createNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -501,26 +503,35 @@ public class MainActivity extends AppCompatActivity {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
         }
-    }
+    }*/
 
-    public void notification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_baseline_notifications)
-                .setContentTitle("Lunch Time")
-                .setContentText("go to eat")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+    public void scheduleWorker() {
+        WorkRequest uploadWorkRequest =
+                new OneTimeWorkRequest.Builder(UploadWorker.class)
+                        .setInitialDelay(getTimeDuration(), TimeUnit.MINUTES)
+                        .build();
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        // notificationId is a unique int for each notification that you must define
-        notificationManager.notify(NOTIFICATION_ID, builder.build());
-    }
-
-    public void getAlarm() {
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra("any_data", 123);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mainActivityViewModel.getWorkManager(uploadWorkRequest, this);
 
     }
 
+    public long getTimeDuration(){
+        long hours;
+        long minutes;
+        long delay;
+
+        Time time = new Time();
+        time.setToNow();
+        Log.e(TAG, "getTimeDuration: "+time.hour+ ":"+ time.minute);
+        if (time.hour<12){
+            hours = 11 - time.hour;
+        }
+        else {
+            hours = 24 - time.hour + 11;
+        }
+        minutes = 60 - time.minute;
+        delay = (hours * 60) + minutes;
+        Log.e(TAG, "getTimeDuration: " + delay );
+        return delay;
+    }
 }

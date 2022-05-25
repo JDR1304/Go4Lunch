@@ -120,4 +120,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
     //Notification
     implementation "androidx.core:core:1.6.0"
+
+    //WorkManager
+    implementation "androidx.work:work-runtime:2.7.1"
 }

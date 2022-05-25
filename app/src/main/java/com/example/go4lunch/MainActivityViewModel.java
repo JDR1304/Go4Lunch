@@ -1,10 +1,13 @@
 package com.example.go4lunch;
 
+import android.content.Context;
 import android.location.Location;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.model.User;
@@ -21,7 +24,7 @@ public class MainActivityViewModel extends ViewModel {
 
     public String apiKey;
 
-    public Restaurant restaurantBookedByUser;
+    public WorkManager workManager;
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
@@ -45,7 +48,7 @@ public class MainActivityViewModel extends ViewModel {
         return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), getApiKey());
     }
 
-    public String getApiKey(){
+    public String getApiKey() {
         return apiKey;
     }
 
@@ -58,21 +61,21 @@ public class MainActivityViewModel extends ViewModel {
         return userRepository.getUsersList();
     }
 
-    public String getCurrentUserUid(){
+    public String getCurrentUserUid() {
         return userRepository.getCurrentUserUID();
     }
 
-    public String updatePlaceIdChoseByCurrentUserInFirestore(String placeId){
+    public String updatePlaceIdChoseByCurrentUserInFirestore(String placeId) {
         userRepository.updatePlaceIdChoseByCurrentUserInFirestore(placeId);
         return placeId;
     }
 
-    public String updateRestaurantNameChoseByCurrentUserInFirestore(String name){
+    public String updateRestaurantNameChoseByCurrentUserInFirestore(String name) {
         userRepository.updateRestaurantNameChoseByCurrentUserInFirestore(name);
         return name;
     }
 
-    public LiveData <String> getChosenRestaurantByUserFromFirestore (String userUid) {
+    public LiveData<String> getChosenRestaurantByUserFromFirestore(String userUid) {
         return userRepository.getChosenRestaurantIdFromUser(userUid);
     }
 
@@ -81,19 +84,19 @@ public class MainActivityViewModel extends ViewModel {
 //RestaurantRepository
 
     public Restaurant createRestaurantInFirestore(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurant,
-                                            List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry){
-        return restaurantRepository.createRestaurant(uid, name, address,pictureUrl, usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber, geometry);
+                                                  List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
+        return restaurantRepository.createRestaurant(uid, name, address, pictureUrl, usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber, geometry);
     }
 
     public LiveData<List<Restaurant>> getRestaurantListFromFirestore() {
         return restaurantRepository.getRestaurantsList();
     }
 
-    public LiveData <Restaurant> getRestaurantByIdFromFirestore(String restaurantPlaceId){
-        return  restaurantRepository.getRestaurantById(restaurantPlaceId);
+    public LiveData<Restaurant> getRestaurantByIdFromFirestore(String restaurantPlaceId) {
+        return restaurantRepository.getRestaurantById(restaurantPlaceId);
     }
 
-    public void deleteRestaurantInFirestore(String uid){
+    public void deleteRestaurantInFirestore(String uid) {
         restaurantRepository.deleteRestaurantFromFirestore(uid);
     }
 
@@ -105,12 +108,20 @@ public class MainActivityViewModel extends ViewModel {
         restaurantRepository.likeDecrement(uid);
     }
 
-   public void setPredictionEstablishmentList(List<String> predictionList){
+
+    // Management of the prediction list
+    public void setPredictionEstablishmentList(List<String> predictionList) {
         establishmentPrediction.setValue(predictionList);
     }
 
-    public LiveData<List<String>> getPredictionEstablishmentList(){
+    public LiveData<List<String>> getPredictionEstablishmentList() {
         return establishmentPrediction;
+    }
+
+    // Management of the workerManager
+
+    public void getWorkManager(WorkRequest uploadWorkRequest, Context context) {
+        WorkManager.getInstance(context).enqueue(uploadWorkRequest);
     }
 }
 

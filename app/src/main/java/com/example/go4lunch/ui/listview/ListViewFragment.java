@@ -98,13 +98,14 @@ public class ListViewFragment extends Fragment {
                         for (int j =0; j<restaurants.size(); j++){
                             if (predictions.get(i).equals(restaurants.get(j).getName())){
                                 predictionsList.add(restaurants.get(j));
+                                break;
                             }
                         }
                     }
                     if (predictionsList.size()>0) {
                         restaurants.clear();
                         restaurants.addAll(predictionsList);
-                        recyclerView.setAdapter(listViewRecyclerViewAdapter);
+                        //recyclerView.setAdapter(listViewRecyclerViewAdapter);
                         listViewRecyclerViewAdapter.notifyDataSetChanged();
                     }
                 } else {

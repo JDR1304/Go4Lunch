@@ -36,7 +36,7 @@
     <string name="info_no_username_found">no username found</string>
     <string name="info_no_email_found">no email found</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notifications">Notification</string>
 
     <string name="title_activity_maps">MapsActivity</string>
     <string name="maps_api_key">AIzaSyD6pekqGKHnG9bm4jbb21ges37dv2UgH5w</string>

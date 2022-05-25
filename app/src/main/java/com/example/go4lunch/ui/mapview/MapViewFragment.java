@@ -92,13 +92,13 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
 
 
-      /*  LatLng southWest = new LatLng(location.getLatitude() - 0.01, location.getLongitude()-0.014);
-        LatLng northEast = new LatLng(location.getLatitude() + 0.01, location.getLongitude() + 0.014);
+        LatLng southWest = new LatLng(location.getLatitude() - 0.015, location.getLongitude()-0.0145);
+        LatLng northEast = new LatLng(location.getLatitude() + 0.015, location.getLongitude() + 0.0145);
 
         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
                 .position(southWest));
         mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                .position(northEast));*/
+                .position(northEast));
 
     }
 
@@ -163,13 +163,14 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
             public void onChanged(List<String> predictions) {
                 Log.e(TAG, "onChanged: MapFragment" + predictions);
                 if (predictions.size() > 0) {
+                    mMap.clear();
                     for (int i = 0; i<predictions.size(); i++){
                         for (int j =0; j<restaurants.size(); j++){
                             if (predictions.get(i).equals(restaurants.get(j).getName())){
-                                mMap.clear();
                                 LatLng restaurantPosition = new LatLng(restaurants.get(j).getGeometry().getLocation().getLat(), restaurants.get(j).getGeometry().getLocation().getLng());
                                 mMap.addMarker(new MarkerOptions()
                                         .position(restaurantPosition).title(restaurants.get(j).getName()));
+                                break;
                             }
                         }
                     }
