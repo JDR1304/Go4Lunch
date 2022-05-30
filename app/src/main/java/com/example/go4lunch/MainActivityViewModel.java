@@ -1,8 +1,14 @@
 package com.example.go4lunch;
 
+import static androidx.core.app.ServiceCompat.stopForeground;
+
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.location.Location;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -16,6 +22,7 @@ import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.datasource.FetchRestaurantInGoogleAPI;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +30,6 @@ import java.util.List;
 public class MainActivityViewModel extends ViewModel {
 
     public String apiKey;
-
-    public WorkManager workManager;
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
@@ -65,6 +70,10 @@ public class MainActivityViewModel extends ViewModel {
         return userRepository.getCurrentUserUID();
     }
 
+    public String getCurrentUserName() {
+        return userRepository.getCurrentUserName();
+    }
+
     public String updatePlaceIdChoseByCurrentUserInFirestore(String placeId) {
         userRepository.updatePlaceIdChoseByCurrentUserInFirestore(placeId);
         return placeId;
@@ -83,9 +92,9 @@ public class MainActivityViewModel extends ViewModel {
 //------------------------------------------------------------------------------------------------
 //RestaurantRepository
 
-    public Restaurant createRestaurantInFirestore(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurant,
-                                                  List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
-        return restaurantRepository.createRestaurant(uid, name, address, pictureUrl, usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber, geometry);
+    public Restaurant createRestaurantInFirestore(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurantById,
+                                                  List<String> usersWhoChoseRestaurantByName,List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
+        return restaurantRepository.createRestaurant(uid, name, address, pictureUrl, usersWhoChoseRestaurantById,usersWhoChoseRestaurantByName, favoriteRestaurantUsers, likeNumber, geometry);
     }
 
     public LiveData<List<Restaurant>> getRestaurantListFromFirestore() {
@@ -118,10 +127,22 @@ public class MainActivityViewModel extends ViewModel {
         return establishmentPrediction;
     }
 
-    // Management of the workerManager
+    /*// Management of the workerManager
 
     public void getWorkManager(WorkRequest uploadWorkRequest, Context context) {
         WorkManager.getInstance(context).enqueue(uploadWorkRequest);
+    }*/
+
+    // WorkManager and notification
+    public void getNotification(Context context) {
+        UploadWorker.scheduleWorker(context);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void cancelNotification(Context context){
+        NotificationManager notificationManager= (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.deleteNotificationChannel("CHANNEL_ID");
+
     }
 }
 

@@ -10,7 +10,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.model.User;
 import com.example.go4lunch.modelApiNearby.Geometry;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -24,7 +23,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class RestaurantRepository {
 
@@ -38,7 +36,7 @@ public class RestaurantRepository {
     private static volatile RestaurantRepository instance;
     private CollectionReference collectionReference;
     private MutableLiveData <List<String>> usersWhoJoinRestaurant;
-    private Restaurant restaurantTest;
+
 
 
     private RestaurantRepository() {
@@ -64,10 +62,10 @@ public class RestaurantRepository {
 
     // Create Restaurant in Firestore
     public Restaurant createRestaurant(String uid, String name, String address, String pictureUrl,
-                                       List<String> usersWhoChoseRestaurant,
+                                       List<String> usersWhoChoseRestaurantById,List<String> usersWhoChoseRestaurantByName,
                                        List <String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
 
-        Restaurant restaurantToCreate = new Restaurant(uid, name, address,pictureUrl, usersWhoChoseRestaurant, favoriteRestaurantUsers, likeNumber, geometry);
+        Restaurant restaurantToCreate = new Restaurant(uid, name, address,pictureUrl, usersWhoChoseRestaurantById,usersWhoChoseRestaurantByName, favoriteRestaurantUsers, likeNumber, geometry);
 
         Task<DocumentSnapshot> restaurantData = getRestaurantData(uid);
         // If the restaurant already exist in Firestore, we get his data
@@ -123,8 +121,8 @@ public class RestaurantRepository {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Restaurant restaurant = document.toObject(Restaurant.class);
-                        for (int i = 0; i<restaurant.getUsersWhoChoseRestaurant().size(); i++ ){
-                            users.add(restaurant.getUsersWhoChoseRestaurant().get(i));
+                        for (int i = 0; i<restaurant.getUsersWhoChoseRestaurantById().size(); i++ ){
+                            users.add(restaurant.getUsersWhoChoseRestaurantById().get(i));
                         }
                         usersWhoJoinRestaurant.setValue(users);
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());

@@ -9,8 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
@@ -20,17 +18,14 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
 
 import android.Manifest;
-import android.app.AlarmManager;
-
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.annotation.SuppressLint;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -39,7 +34,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.format.Time;
@@ -56,6 +50,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
+import com.example.go4lunch.model.Restaurant;
+import com.example.go4lunch.model.User;
+import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.repository.UserRepository;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
@@ -80,8 +77,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -96,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
     private MainActivityViewModel mainActivityViewModel;
     private AppBarConfiguration mAppBarConfiguration;
     private String placeIdBookedByUser;
-
 
 
     //Prediction List
@@ -139,10 +133,7 @@ public class MainActivity extends AppCompatActivity {
         manageApiKey();
         configureToolbar();
         getRestaurantBookedByUser();
-        //createNotificationChannel();
-        //notification();
-        scheduleWorker();
-        //getTimeDuration();
+
 
     }
 
@@ -487,51 +478,5 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-  /*  private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = getString(R.string.channel_name);
-            String description = getString(R.string.channel_description);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }*/
-
-    public void scheduleWorker() {
-        WorkRequest uploadWorkRequest =
-                new OneTimeWorkRequest.Builder(UploadWorker.class)
-                        .setInitialDelay(getTimeDuration(), TimeUnit.MINUTES)
-                        .build();
-
-        mainActivityViewModel.getWorkManager(uploadWorkRequest, this);
-
-    }
-
-    public long getTimeDuration(){
-        long hours;
-        long minutes;
-        long delay;
-
-        Time time = new Time();
-        time.setToNow();
-        Log.e(TAG, "getTimeDuration: "+time.hour+ ":"+ time.minute);
-        if (time.hour<12){
-            hours = 11 - time.hour;
-        }
-        else {
-            hours = 24 - time.hour + 11;
-        }
-        minutes = 60 - time.minute;
-        delay = (hours * 60) + minutes;
-        Log.e(TAG, "getTimeDuration: " + delay );
-        return delay;
     }
 }

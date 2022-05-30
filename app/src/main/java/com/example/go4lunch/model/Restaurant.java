@@ -15,19 +15,21 @@ public class Restaurant {
     private String name;
     private String address;
     private String pictureUrl;
-    private List <String> usersWhoChoseRestaurant;
+    private List <String> usersWhoChoseRestaurantById;
+    private List <String> usersWhoChoseRestaurantByName;
     private List <String> favoriteRestaurantUsers;
     private Geometry geometry;
     private int likeNumber;
 
     public Restaurant() {}
 
-    public Restaurant(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurant,
-                      List <String> favoriteRestaurantUsers, int likeNumber, Geometry geometry ) {
+    public Restaurant(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurantById,
+                      List<String> usersWhoChoseRestaurantByName,List <String> favoriteRestaurantUsers, int likeNumber, Geometry geometry ) {
         this.uid = uid;
         this.name = name;
         this.address = address;
-        this.usersWhoChoseRestaurant = usersWhoChoseRestaurant;
+        this.usersWhoChoseRestaurantById = usersWhoChoseRestaurantById;
+        this.usersWhoChoseRestaurantByName = usersWhoChoseRestaurantByName;
         this.favoriteRestaurantUsers = favoriteRestaurantUsers;
         this.likeNumber = likeNumber;
         this.pictureUrl = pictureUrl;
@@ -62,12 +64,16 @@ public class Restaurant {
 
     public void setPictureUrl(String pictureUrl) { this.pictureUrl = pictureUrl; }
 
-    public List<String> getUsersWhoChoseRestaurant() {
-        return usersWhoChoseRestaurant;
+    public List<String> getUsersWhoChoseRestaurantById() {
+        return usersWhoChoseRestaurantById;
     }
 
     public void setUsersWhoChoseRestaurant(List<String> usersWhoChoseRestaurant) {
-        this.usersWhoChoseRestaurant = usersWhoChoseRestaurant;
+        this.usersWhoChoseRestaurantById = usersWhoChoseRestaurant;
+    }
+
+    public List<String> getUsersWhoChoseRestaurantByName() {
+        return usersWhoChoseRestaurantByName;
     }
 
     public List<String> getFavoriteRestaurantUsers() {

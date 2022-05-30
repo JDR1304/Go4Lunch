@@ -4,6 +4,7 @@ import android.nfc.Tag;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +14,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 
 public class SettingFragment extends Fragment {
 
     private TextView notification;
     private Switch notificationSwitch;
+    private MainActivityViewModel mainActivityViewModel;
 
     public SettingFragment() {
         // Required empty public constructor
@@ -33,6 +36,7 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
 
     }
 
@@ -56,9 +60,11 @@ public class SettingFragment extends Fragment {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked== true) {
+                    mainActivityViewModel.getNotification(getActivity());
                     // Par le view model je dois activer la notification
                     Toast.makeText(getActivity(), "Settings switch on", Toast.LENGTH_SHORT).show();
                 }else
+                    mainActivityViewModel.cancelNotification(getActivity());
                     // Par le view model je dois désactiver la notification
                     Toast.makeText(getActivity(), "Settings switch off", Toast.LENGTH_SHORT).show();
             }

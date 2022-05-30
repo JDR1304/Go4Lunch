@@ -46,6 +46,7 @@ sourceSets {
 
 dependencies {
     implementation 'com.google.firebase:firebase-database:20.0.4'
+    testImplementation 'org.testng:testng:6.9.6'
     def nav_version = "2.4.2"
 
     // Java language implementation

@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">Go4Lunch</string>
+
+    <!--Main activity xml-->
+    <string name="authenticationPicture">Image d\'authentification</string>
+    <string name="connection_button">Connexion</string>
+    <string name="error_authentication_canceled">Authentification annulée</string>
+    <string name="error_no_internet">Pas d\'internet</string>
+    <string name="error_unknown_error">Erreur inconnue</string>
+    <string name="connection_succeed">Connexion réussie</string>
+    <string name="button_login_text_logged">Afficher le profil</string>
+    <string name="button_login_text_not_logged">Connexion</string>
+
+    <string name="facebook_application_id">603656987391009</string>
+    <string name="fb_login_protocol_scheme">fb603656987391009</string>
+
+    <!--Bottom View Navigation-->
+    <string name="title_map_view">Carte</string>
+    <string name="title_list_view">Liste</string>
+    <string name="title_workmates">Collègues</string>
+
+    <!--Drawer View Navigation-->
+    <string name="navigation_drawer_open">Ouvrir le triroir de navigation</string>
+    <string name="navigation_drawer_close">Fermer le tiroir de navigationr</string>
+
+    <string name="nav_header_drawer_desc">description du tiroir</string>
+    <string name="nav_header_title">Go4Lunch</string>
+    <string name="nav_header_drawer_email">email du tiroir</string>
+    <string name="nav_header_drawer_name">nom du tiroir</string>
+
+    <string name="menu_your_lunch">DEJEUNER</string>
+    <string name="menu_settings">PARAMETRES</string>
+    <string name="menu_log_out">QUITTER</string>
+
+    <string name="action_seek">Recherche</string>
+    <string name="info_no_username_found">Pas d\'utilisateur trouvé</string>
+    <string name="info_no_email_found">Pas d\'email trouvé</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="notifications">Notification</string>
+
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="maps_api_key">AIzaSyD6pekqGKHnG9bm4jbb21ges37dv2UgH5w</string>
+    <string name="search">Recherche</string>
+    <string name="msg_token_fmt">msg token</string>
+    <string name="default_notification_channel_id">channel id default</string>
+    <string name="search_label">Go4Lunch</string>
+    <string name="search_hint">Nom du restaurant </string>
+    <string name="channel_name">notification channel</string>
+    <string name="channel_description">channel description</string>
+
+
+</resources>

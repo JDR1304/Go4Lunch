@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,6 +30,7 @@ import com.bumptech.glide.Glide;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
+import com.example.go4lunch.UploadWorker;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.model.User;
 import com.example.go4lunch.modelApiNearby.Result;
@@ -41,9 +44,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class RestaurantDetailsFragment extends Fragment {
 
@@ -83,6 +84,8 @@ public class RestaurantDetailsFragment extends Fragment {
     // RecyclerView
     private RecyclerView recyclerView;
     private WorkmatesRecyclerViewAdapter workmatesRecyclerViewAdapter;
+
+    private List <String> usersWhoJoinRestaurantByName;
 
 
     @Override
@@ -241,21 +244,23 @@ public class RestaurantDetailsFragment extends Fragment {
     }
 
     private Restaurant changeResultInRestaurant(Result restaurantResult) {
-        List<String> usersWhoChoseRestaurantFromFirestore = new ArrayList<>();
+        List<String> usersWhoChoseRestaurantFromFirestoreById = new ArrayList<>();
+        List<String> usersWhoChoseRestaurantFromFirestoreByName = new ArrayList<>();
         List<String> favoriteRestaurantUsersFromFirestore = new ArrayList<>();
         int likeNumber = 0;
-        usersWhoChoseRestaurantFromFirestore.add(currentUserUid);
+        usersWhoChoseRestaurantFromFirestoreById.add(currentUserUid);
         String reference = restaurantResult.getPhotos().get(0).getPhotoReference();
         String pictureSize = Integer.toString(restaurantResult.getPhotos().get(0).getWidth());
         pictureUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + mainActivityViewModel.apiKey;
         Restaurant restaurant = new Restaurant(restaurantResult.getPlaceId(), restaurantResult.getName(),
-                restaurantResult.getVicinity(), pictureUrl, usersWhoChoseRestaurantFromFirestore,
+                restaurantResult.getVicinity(), pictureUrl, usersWhoChoseRestaurantFromFirestoreById,usersWhoChoseRestaurantFromFirestoreByName,
                 favoriteRestaurantUsersFromFirestore, likeNumber, restaurantResult.getGeometry());
         return restaurant;
     }
 
     public void getButtonGreen() {
         floatingActionButtonToBookRestaurant.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+
     }
 
     public void getButtonWhite() {
@@ -264,6 +269,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
     private void restaurantBooked() {
         floatingActionButtonToBookRestaurant.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View v) {
                 //Autre variable qui correspond à une donnée dans le if!!!
@@ -272,11 +278,12 @@ public class RestaurantDetailsFragment extends Fragment {
                 if (userRestaurantIdChosen == null || !userRestaurantIdChosen.equals(placeId)) {
                     //For the Drawer
                     getButtonGreen();
+                    mainActivityViewModel.getNotification(getActivity());
                     deleteOldRestaurantIdChosen(userRestaurantIdChosen);
 
                     // if restaurant exists in Firestore add current user to getUsersWhoChoseRestaurant list
                     if (restaurant != null /*&& restaurantDetailsFromFirestore.getUid().equals(placeId)*/) {
-                        restaurant.getUsersWhoChoseRestaurant().add(currentUserUid);
+                        restaurant.getUsersWhoChoseRestaurantById().add(currentUserUid);
 
 
                     }
@@ -284,16 +291,18 @@ public class RestaurantDetailsFragment extends Fragment {
                     else {
                         restaurant = changeResultInRestaurant(restaurantResultFromApi);
                         mainActivityViewModel.createRestaurantInFirestore(placeId, restaurant.getName(), restaurant.getAddress(), pictureUrl,
-                                restaurant.getUsersWhoChoseRestaurant(), restaurant.getFavoriteRestaurantUsers(), restaurant.getLikeNumber(), restaurant.getGeometry());
-
+                                restaurant.getUsersWhoChoseRestaurantById(),restaurant.getUsersWhoChoseRestaurantByName(), restaurant.getFavoriteRestaurantUsers(), restaurant.getLikeNumber(), restaurant.getGeometry());
                     }
+                    restaurant.getUsersWhoChoseRestaurantByName().add(mainActivityViewModel.getCurrentUserName());
                     mainActivityViewModel.updatePlaceIdChoseByCurrentUserInFirestore(placeId);
                     mainActivityViewModel.updateRestaurantNameChoseByCurrentUserInFirestore(restaurant.getName());
                     userRestaurantIdChosen = placeId;
                 } else {
                     getButtonWhite();
-                    if (restaurant.getLikeNumber() > 0 || restaurant.getUsersWhoChoseRestaurant().size() > 1) {
-                        restaurant.getUsersWhoChoseRestaurant().remove(currentUserUid);
+                    mainActivityViewModel.cancelNotification(getActivity());
+                    if (restaurant.getLikeNumber() > 0 || restaurant.getUsersWhoChoseRestaurantById().size() > 1) {
+                        restaurant.getUsersWhoChoseRestaurantById().remove(currentUserUid);
+                        restaurant.getUsersWhoChoseRestaurantByName().remove(mainActivityViewModel.getCurrentUserName());
                         mainActivityViewModel.updatePlaceIdChoseByCurrentUserInFirestore(null);
                         mainActivityViewModel.updateRestaurantNameChoseByCurrentUserInFirestore(null);
                         userRestaurantIdChosen = null;
@@ -320,8 +329,8 @@ public class RestaurantDetailsFragment extends Fragment {
             Observer<Restaurant> restaurantByIdFromFirestore = new Observer<Restaurant>() {
                 @Override
                 public void onChanged(Restaurant restaurant) {
-                    if (restaurant.getLikeNumber() > 0 || restaurant.getUsersWhoChoseRestaurant().size() > 1) {
-                        restaurant.getUsersWhoChoseRestaurant().remove(currentUserUid);
+                    if (restaurant.getLikeNumber() > 0 || restaurant.getUsersWhoChoseRestaurantById().size() > 1) {
+                        restaurant.getUsersWhoChoseRestaurantById().remove(currentUserUid);
                     } else {
                         mainActivityViewModel.deleteRestaurantInFirestore(userRestaurantIdChosen);
                     }
@@ -409,6 +418,7 @@ public class RestaurantDetailsFragment extends Fragment {
             }
         });
     }
+
 }
 
 
