@@ -5,24 +5,15 @@ plugins {
     id 'androidx.navigation.safeargs'
 }
 
-android {
-    compileSdk 31
 
-    defaultConfig {
-        applicationId "com.example.go4lunch"
-        minSdk 21
-        targetSdk 31
-        versionCode 1
-        versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
 
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            resValue 'String', "API_KEY", API_KEY
         }
     }
     compileOptions {
@@ -124,4 +115,8 @@ dependencies {
 
     //WorkManager
     implementation "androidx.work:work-runtime:2.7.1"
+
+    //Unit Test
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.hamcrest:java-hamcrest:2.0.0.0'
 }

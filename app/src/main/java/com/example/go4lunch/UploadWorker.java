@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class UploadWorker extends Worker {
 
-    //Notification
+    private static String WORKER_ID = "WORKER_ID";
     private final String CHANNEL_ID = "CHANNEL_ID";
     private final int NOTIFICATION_ID = 100;
     private UserRepository userRepository = UserRepository.getInstance();
@@ -44,7 +45,7 @@ public class UploadWorker extends Worker {
     public Result doWork() {
         if (userRepository.getChosenRestaurantIdFromUser(userRepository.getCurrentUserUID())!= null) {
             notification(getRestaurant());
-            Log.e(TAG, "doWork: active the worker ");
+            Log.e(TAG, "doWork: active the worker " + getRestaurant());
         }
         return Result.success();
     }
@@ -55,10 +56,10 @@ public class UploadWorker extends Worker {
                     .setSmallIcon(R.drawable.ic_baseline_notifications)
                     .setContentTitle(restaurant.getName())
                     .setContentText(restaurant.getAddress())
-                    .setAutoCancel(true)
                     .setStyle(new NotificationCompat.BigTextStyle()
-                            .bigText((getUsersWhoJoinRestaurant(restaurant))))
+                            .bigText((restaurant.getAddress()+"\n"+getUsersWhoJoinRestaurant(restaurant))))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setAutoCancel(true)
                     .build();
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
@@ -67,12 +68,13 @@ public class UploadWorker extends Worker {
         }
     }
 
-    public static void scheduleWorker(Context context) {
-        WorkRequest uploadWorkRequest =
+    public static void scheduleWorker(WorkManager workManager) {
+        OneTimeWorkRequest uploadWorkRequest =
                 new OneTimeWorkRequest.Builder(UploadWorker.class)
-                        .setInitialDelay(1, TimeUnit.MINUTES)
+                        .setInitialDelay(0, TimeUnit.MINUTES)
                         .build();
-        WorkManager.getInstance(context).enqueue(uploadWorkRequest);
+
+        workManager.enqueueUniqueWork(WORKER_ID, ExistingWorkPolicy.REPLACE, uploadWorkRequest);
     }
 
     public long getTimeDuration() {
@@ -95,7 +97,7 @@ public class UploadWorker extends Worker {
     }
 
     public Restaurant getRestaurant(){
-        if (restaurantRepository.getRestaurantsList().getValue()!=null) {
+        if (restaurantRepository.getRestaurantsList().getValue()!= null) {
             String restaurantId = userRepository.getChosenRestaurantIdFromUser(userRepository.getCurrentUserUID()).getValue();
             for (int i = 0; i<restaurantRepository.getRestaurantsList().getValue().size();i++){
                 if (restaurantRepository.getRestaurantsList().getValue().get(i).getUid().equals(restaurantId)) {

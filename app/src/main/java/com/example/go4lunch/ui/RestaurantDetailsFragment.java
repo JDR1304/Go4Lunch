@@ -27,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
@@ -166,7 +167,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
                 if (reference != null) {
                     Glide.with(this.restaurantImageView.getContext())
-                            .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + mainActivityViewModel.apiKey)
+                            .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + BuildConfig.API_KEY)
                             .into(this.restaurantImageView);
                 } else {
                     Glide.with(this.restaurantImageView.getContext())
@@ -251,7 +252,7 @@ public class RestaurantDetailsFragment extends Fragment {
         usersWhoChoseRestaurantFromFirestoreById.add(currentUserUid);
         String reference = restaurantResult.getPhotos().get(0).getPhotoReference();
         String pictureSize = Integer.toString(restaurantResult.getPhotos().get(0).getWidth());
-        pictureUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + mainActivityViewModel.apiKey;
+        pictureUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + BuildConfig.API_KEY;
         Restaurant restaurant = new Restaurant(restaurantResult.getPlaceId(), restaurantResult.getName(),
                 restaurantResult.getVicinity(), pictureUrl, usersWhoChoseRestaurantFromFirestoreById,usersWhoChoseRestaurantFromFirestoreByName,
                 favoriteRestaurantUsersFromFirestore, likeNumber, restaurantResult.getGeometry());
@@ -344,7 +345,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
     private void getPlacePhoneNumberAndWebsite(String restaurantPlaceId) {
         // Initialize Places.
-        Places.initialize(getActivity(), mainActivityViewModel.apiKey);
+        Places.initialize(getActivity(), BuildConfig.API_KEY);
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(getContext());

@@ -86,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
     private final int locationRequestCode = 1000;
-    private String apiKey;
     private ActivityMainBinding binding;
     private MainActivityViewModel mainActivityViewModel;
     private AppBarConfiguration mAppBarConfiguration;
@@ -115,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
     //private UserManager userManager = UserManager.getInstance();
     private UserRepository userRepository = UserRepository.getInstance();
     private FirebaseUser user;
-    private List<String> restaurantListName = new ArrayList<>();
+
 
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -130,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
         mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
 
         updateGps();
-        manageApiKey();
         configureToolbar();
         getRestaurantBookedByUser();
 
@@ -415,11 +413,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void manageApiKey() {
-        apiKey = getResources().getString(R.string.maps_api_key);
-        mainActivityViewModel.setApiKey(apiKey);
-    }
-
     public void getRestaurantBookedByUser() {
         if (mainActivityViewModel.getChosenRestaurantByUserFromFirestore(mainActivityViewModel.getCurrentUserUid()) != null) {
             Observer<String> placeIdBookByUser = new Observer<String>() {
@@ -435,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
     public void getRestaurantByName(String query) {
 
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), mainActivityViewModel.getApiKey());
+            Places.initialize(getApplicationContext(), BuildConfig.API_KEY);
         }
         List<String> predictionList = new ArrayList<>();
 

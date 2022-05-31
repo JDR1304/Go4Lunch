@@ -1,8 +1,5 @@
 package com.example.go4lunch;
 
-import static androidx.core.app.ServiceCompat.stopForeground;
-
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.location.Location;
@@ -13,7 +10,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.model.User;
@@ -22,14 +18,14 @@ import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.datasource.FetchRestaurantInGoogleAPI;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;
-import com.google.firebase.messaging.RemoteMessage;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
 
     public String apiKey;
+
+    public WorkManager workManager;
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
@@ -50,16 +46,9 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public LiveData<List<Result>> getRestaurants() {
-        return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), getApiKey());
+        return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), BuildConfig.API_KEY);
     }
 
-    public String getApiKey() {
-        return apiKey;
-    }
-
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
-    }
 
     // Why return LiveData because I don't want change the data outside the viewModel
     public LiveData<List<User>> getUsers() {
@@ -93,8 +82,8 @@ public class MainActivityViewModel extends ViewModel {
 //RestaurantRepository
 
     public Restaurant createRestaurantInFirestore(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurantById,
-                                                  List<String> usersWhoChoseRestaurantByName,List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
-        return restaurantRepository.createRestaurant(uid, name, address, pictureUrl, usersWhoChoseRestaurantById,usersWhoChoseRestaurantByName, favoriteRestaurantUsers, likeNumber, geometry);
+                                                  List<String> usersWhoChoseRestaurantByName, List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
+        return restaurantRepository.createRestaurant(uid, name, address, pictureUrl, usersWhoChoseRestaurantById, usersWhoChoseRestaurantByName, favoriteRestaurantUsers, likeNumber, geometry);
     }
 
     public LiveData<List<Restaurant>> getRestaurantListFromFirestore() {
@@ -135,14 +124,19 @@ public class MainActivityViewModel extends ViewModel {
 
     // WorkManager and notification
     public void getNotification(Context context) {
-        UploadWorker.scheduleWorker(context);
+        if (workManager==null){
+            workManager = WorkManager.getInstance(context);
+        }
+        UploadWorker.scheduleWorker(workManager);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void cancelNotification(Context context){
-        NotificationManager notificationManager= (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.deleteNotificationChannel("CHANNEL_ID");
 
+    public void cancelNotification(Context context) {
+        if (workManager==null){
+            workManager = WorkManager.getInstance(context);
+        }
+        workManager.cancelAllWorkByTag("WORKER_ID");
+        //workManager.cancelWorkById("WORKER_ID");
     }
 }
 

@@ -1,16 +1,14 @@
 package com.example.go4lunch.network;
 
 
-import static android.content.ContentValues.TAG;
 
-import android.content.Context;
-import android.content.res.Resources;
 import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.compose.ui.text.platform.AndroidParagraphIntrinsics;
 
-import com.example.go4lunch.R;
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.modelApiNearby.Restaurant;
 
 import java.lang.ref.WeakReference;
