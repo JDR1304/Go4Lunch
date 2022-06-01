@@ -1,5 +1,8 @@
 package com.example.go4lunch.ui;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.Bundle;
 
@@ -23,6 +26,11 @@ public class SettingFragment extends Fragment {
     private Switch notificationSwitch;
     private MainActivityViewModel mainActivityViewModel;
 
+    private SharedPreferences sharedPreferences;
+    private boolean switchState;
+    private SharedPreferences.Editor editor;
+
+
     public SettingFragment() {
         // Required empty public constructor
     }
@@ -44,29 +52,41 @@ public class SettingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting, container, false);
+        sharedPreferences = getActivity().getSharedPreferences("SAVE_SWITCH_STATE", MODE_PRIVATE);
+        switchState = sharedPreferences.getBoolean("SAVE",true);
+        editor = sharedPreferences.edit();
         initialisation(view);
         setNotificationSwitch();
         return view;
 
     }
 
-    public void initialisation(View view){
-        notification= view.findViewById(R.id.notification);
+    public void initialisation(View view) {
+        notification = view.findViewById(R.id.notification);
         notificationSwitch = view.findViewById(R.id.notification_switch);
+        notificationSwitch.setChecked(switchState);
     }
 
-    public void setNotificationSwitch(){
+    public void setNotificationSwitch() {
+
         notificationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked== true) {
+                if (isChecked == true) {
+                    editor.putBoolean("SAVE", true);
+                    editor.apply();
+                    editor.commit();
                     mainActivityViewModel.getNotification(getActivity());
                     // Par le view model je dois activer la notification
                     Toast.makeText(getActivity(), "Settings switch on", Toast.LENGTH_SHORT).show();
-                }else
+                } else {
+                    editor.putBoolean("SAVE", false);
+                    editor.apply();
+                    editor.commit();
                     mainActivityViewModel.cancelNotification(getActivity());
                     // Par le view model je dois désactiver la notification
                     Toast.makeText(getActivity(), "Settings switch off", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

@@ -73,20 +73,27 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
             public void onChanged(Location location) {
                 MapViewFragment.this.location = location;
                 mapFragment.getMapAsync(MapViewFragment.this);
+
             }
         });
+        /*getRestaurant();
+        getRestaurantFromFirestore();
+        getPredictionEstablishment();*/
+
     }
+
 
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        getRestaurant();
+        getPredictionEstablishment();
+        getRestaurantFromFirestore();
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         // Add a marker at current place and move the camera
-        getRestaurant();
-        getPredictionEstablishment();
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
@@ -198,7 +205,10 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     @Override
     public void onResume() {
         super.onResume();
+        getRestaurant();
+        getPredictionEstablishment();
         getRestaurantFromFirestore();
+
     }
 
     @Override

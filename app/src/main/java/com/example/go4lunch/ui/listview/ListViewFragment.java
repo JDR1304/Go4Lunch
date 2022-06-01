@@ -22,7 +22,9 @@ import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentListViewBinding;
+import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 //import com.example.go4lunch.ui.RestaurantDetailsArgs;
@@ -61,6 +63,8 @@ public class ListViewFragment extends Fragment {
         super.onResume();
         getPredictionEstablishment();
         getRestaurants();
+        getRestaurantFromFirestore();
+
     }
 
     public void getRestaurants() {
@@ -118,6 +122,14 @@ public class ListViewFragment extends Fragment {
         mainActivityViewModel.getPredictionEstablishmentList().observe(this, establishments);
     }
 
+    public void getRestaurantFromFirestore() {
+        Observer<List<Restaurant>> restaurants = new Observer<List<Restaurant>>() {
+            @Override
+            public void onChanged(List<Restaurant> restaurantList) {
+            }
+        };
+        mainActivityViewModel.getRestaurantListFromFirestore().observe(this, restaurants);
+    }
 
     @Override
     public void onDestroyView() {

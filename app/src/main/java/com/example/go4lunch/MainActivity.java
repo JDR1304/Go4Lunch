@@ -373,6 +373,7 @@ public class MainActivity extends AppCompatActivity {
                 Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
 
 
+            @SuppressLint("MissingPermission")
             Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
             locationResult.addOnSuccessListener(this, location -> {
                 if (location != null) {

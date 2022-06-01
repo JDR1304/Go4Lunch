@@ -140,6 +140,12 @@ public class RestaurantDetailsFragment extends Fragment {
         getLike();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
     //--------------------------------init View from api-------------------------------------------------------
 
     // initialisation de la vue
@@ -419,6 +425,7 @@ public class RestaurantDetailsFragment extends Fragment {
             }
         });
     }
+
 
 }
 

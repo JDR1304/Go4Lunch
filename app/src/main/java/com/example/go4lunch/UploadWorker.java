@@ -71,7 +71,7 @@ public class UploadWorker extends Worker {
     public static void scheduleWorker(WorkManager workManager) {
         OneTimeWorkRequest uploadWorkRequest =
                 new OneTimeWorkRequest.Builder(UploadWorker.class)
-                        .setInitialDelay(0, TimeUnit.MINUTES)
+                        .setInitialDelay(1, TimeUnit.MINUTES)
                         .build();
 
         workManager.enqueueUniqueWork(WORKER_ID, ExistingWorkPolicy.REPLACE, uploadWorkRequest);
