@@ -32,7 +32,7 @@
         android:id="@+id/textViewWorkmatesViewHolderStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint=" hasn't decided yet"
+        android:hint="@string/not_decided"
         android:ellipsize="end"
         android:maxLines="1"
         app:layout_constraintBottom_toBottomOf="parent"

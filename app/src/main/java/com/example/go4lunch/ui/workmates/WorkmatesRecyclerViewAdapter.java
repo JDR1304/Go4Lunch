@@ -1,5 +1,6 @@
 package com.example.go4lunch.ui.workmates;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,13 +25,14 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     private List<User> users;
     private RetrieveIdRestaurant listener;
     private MainActivityViewModel mainActivityViewModel;
+    private String goToEat;
+    private Context context;
 
-    public WorkmatesRecyclerViewAdapter(){}
-
-    public WorkmatesRecyclerViewAdapter(List<User> users,MainActivityViewModel mainActivityViewModel, RetrieveIdRestaurant listener) {
+    public WorkmatesRecyclerViewAdapter(List<User> users, Context context, MainActivityViewModel mainActivityViewModel, RetrieveIdRestaurant listener) {
         this.users = users;
         this.listener = listener;
         this.mainActivityViewModel = mainActivityViewModel;
+        this.context = context;
     }
 
     @NonNull
@@ -38,6 +40,7 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_workmates_item, parent, false);
+        goToEat = context.getResources().getString(R.string.eat_at);
         return new ViewHolder(view);
     }
 
@@ -46,7 +49,7 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
         User user = users.get(position);
         holder.workMatesName.setText(user.getName());
         if (user.getRestaurantName() != null){
-            holder.workMatesStatus.setText(" eating at "+user.getRestaurantName());
+            holder.workMatesStatus.setText(" "+goToEat +" " +user.getRestaurantName());
         }
 
         Glide.with(holder.roundView.getContext())

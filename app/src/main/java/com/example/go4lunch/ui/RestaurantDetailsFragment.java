@@ -86,7 +86,7 @@ public class RestaurantDetailsFragment extends Fragment {
     private RecyclerView recyclerView;
     private WorkmatesRecyclerViewAdapter workmatesRecyclerViewAdapter;
 
-    private List <String> usersWhoJoinRestaurantByName;
+    private List<String> usersWhoJoinRestaurantByName;
 
 
     @Override
@@ -163,24 +163,25 @@ public class RestaurantDetailsFragment extends Fragment {
 
     public void displayRestaurantFromApi() {
         List<Result> restaurantList = mainActivityViewModel.getRestaurants().getValue();
-        for (int i = 0; i < restaurantList.size(); i++) {
-            if (placeId.equals(restaurantList.get(i).getPlaceId())) {
-                restaurantResultFromApi = restaurantList.get(i);
-                restaurantName.setText(restaurantResultFromApi.getName());
-                address.setText(restaurantResultFromApi.getVicinity());
-                String reference = restaurantResultFromApi.getPhotos().get(0).getPhotoReference();
-                String pictureSize = Integer.toString(restaurantResultFromApi.getPhotos().get(0).getWidth());
+        if (restaurantList != null) {
+            for (int i = 0; i < restaurantList.size(); i++) {
+                if (placeId.equals(restaurantList.get(i).getPlaceId())) {
+                    restaurantResultFromApi = restaurantList.get(i);
+                    restaurantName.setText(restaurantResultFromApi.getName());
+                    address.setText(restaurantResultFromApi.getVicinity());
+                    String reference = restaurantResultFromApi.getPhotos().get(0).getPhotoReference();
+                    String pictureSize = Integer.toString(restaurantResultFromApi.getPhotos().get(0).getWidth());
 
-                if (reference != null) {
-                    Glide.with(this.restaurantImageView.getContext())
-                            .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + BuildConfig.API_KEY)
-                            .into(this.restaurantImageView);
-                } else {
-                    Glide.with(this.restaurantImageView.getContext())
-                            .load(R.drawable.go4lunch)
-                            .into(this.restaurantImageView);
+                    if (reference != null) {
+                        Glide.with(this.restaurantImageView.getContext())
+                                .load("https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + BuildConfig.ApiKey)
+                                .into(this.restaurantImageView);
+                    } else {
+                        Glide.with(this.restaurantImageView.getContext())
+                                .load(R.drawable.go4lunch)
+                                .into(this.restaurantImageView);
+                    }
                 }
-
             }
         }
     }
@@ -213,7 +214,7 @@ public class RestaurantDetailsFragment extends Fragment {
                 }
                 if (usersWhoChoseRestaurantForRecyclerView != null) {
                     workmatesRecyclerViewAdapter = new WorkmatesRecyclerViewAdapter
-                            (usersWhoChoseRestaurantForRecyclerView, mainActivityViewModel, new RetrieveIdRestaurant() {
+                            (usersWhoChoseRestaurantForRecyclerView,getContext(), mainActivityViewModel, new RetrieveIdRestaurant() {
                                 @Override
                                 public void onClickItem(String placeId) {
                                     Log.e(TAG, "onClickItem: " + placeId);
@@ -258,9 +259,9 @@ public class RestaurantDetailsFragment extends Fragment {
         usersWhoChoseRestaurantFromFirestoreById.add(currentUserUid);
         String reference = restaurantResult.getPhotos().get(0).getPhotoReference();
         String pictureSize = Integer.toString(restaurantResult.getPhotos().get(0).getWidth());
-        pictureUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + BuildConfig.API_KEY;
+        pictureUrl = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=" + pictureSize + "&photo_reference=" + reference + "&key=" + BuildConfig.ApiKey;
         Restaurant restaurant = new Restaurant(restaurantResult.getPlaceId(), restaurantResult.getName(),
-                restaurantResult.getVicinity(), pictureUrl, usersWhoChoseRestaurantFromFirestoreById,usersWhoChoseRestaurantFromFirestoreByName,
+                restaurantResult.getVicinity(), pictureUrl, usersWhoChoseRestaurantFromFirestoreById, usersWhoChoseRestaurantFromFirestoreByName,
                 favoriteRestaurantUsersFromFirestore, likeNumber, restaurantResult.getGeometry());
         return restaurant;
     }
@@ -298,7 +299,7 @@ public class RestaurantDetailsFragment extends Fragment {
                     else {
                         restaurant = changeResultInRestaurant(restaurantResultFromApi);
                         mainActivityViewModel.createRestaurantInFirestore(placeId, restaurant.getName(), restaurant.getAddress(), pictureUrl,
-                                restaurant.getUsersWhoChoseRestaurantById(),restaurant.getUsersWhoChoseRestaurantByName(), restaurant.getFavoriteRestaurantUsers(), restaurant.getLikeNumber(), restaurant.getGeometry());
+                                restaurant.getUsersWhoChoseRestaurantById(), restaurant.getUsersWhoChoseRestaurantByName(), restaurant.getFavoriteRestaurantUsers(), restaurant.getLikeNumber(), restaurant.getGeometry());
                     }
                     restaurant.getUsersWhoChoseRestaurantByName().add(mainActivityViewModel.getCurrentUserName());
                     mainActivityViewModel.updatePlaceIdChoseByCurrentUserInFirestore(placeId);
@@ -351,7 +352,7 @@ public class RestaurantDetailsFragment extends Fragment {
 
     private void getPlacePhoneNumberAndWebsite(String restaurantPlaceId) {
         // Initialize Places.
-        Places.initialize(getActivity(), BuildConfig.API_KEY);
+        Places.initialize(getActivity(), BuildConfig.ApiKey);
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(getContext());

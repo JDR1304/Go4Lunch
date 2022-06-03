@@ -54,12 +54,19 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         if (getRating(restaurant)!=null) {
             rating = getRating(restaurant);
         }
-        if (rating > 1 && rating < 3) {
+        if (rating >=0 && rating < 3) {
+            holder.star1.setVisibility(View.GONE);
+            holder.star2.setVisibility(View.GONE);
+            holder.star3.setVisibility(View.GONE);
+        } else if (rating >=3 && rating < 4) {
             holder.star1.setVisibility(View.VISIBLE);
-        } else if (rating >= 3 && rating < 4.4) {
+            holder.star2.setVisibility(View.GONE);
+            holder.star3.setVisibility(View.GONE);
+        } else if (rating >= 4 && rating < 4.5) {
             holder.star1.setVisibility(View.VISIBLE);
             holder.star2.setVisibility(View.VISIBLE);
-        } else if (rating >= 4.4 && rating <= 5) {
+            holder.star3.setVisibility(View.GONE);
+        } else if (rating >= 4.5 && rating <= 5) {
             holder.star1.setVisibility(View.VISIBLE);
             holder.star2.setVisibility(View.VISIBLE);
             holder.star3.setVisibility(View.VISIBLE);

@@ -1,10 +1,6 @@
 package com.example.go4lunch.ui.workmates;
 
-
-import static android.content.ContentValues.TAG;
-
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,10 +50,9 @@ public class WorkmatesFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<User> users) {
                 // Update the UI, in this case, a TextView.
-                workmatesRecyclerViewAdapter = new WorkmatesRecyclerViewAdapter(users,mainActivityViewModel, new RetrieveIdRestaurant() {
+                workmatesRecyclerViewAdapter = new WorkmatesRecyclerViewAdapter(users,getContext(), mainActivityViewModel, new RetrieveIdRestaurant() {
                     @Override
                     public void onClickItem(String placeId) {
-                        Log.e(TAG, "onClickItem: "+placeId );
                         action = WorkmatesFragmentDirections.actionNavigationWorkmatesToRestaurantDetails();
                         action.setPlaceId(placeId);
                         Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main).navigate(action);

@@ -4,11 +4,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/filter"
+        android:icon="@drawable/ic_baseline_filter_list_24"
+        android:iconTint="@color/white"
+        android:title="menu"
+        android:visible="false"
+        app:showAsAction="always">
+    <menu>
+        <item
+            android:id="@+id/sort_by_distance"
+            android:orderInCategory="100"
+            android:title="Sort by distance"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/sort_by_stars"
+            android:orderInCategory="100"
+            android:title="Sort by stars"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/all_restaurants"
+            android:orderInCategory="100"
+            android:title="All restaurants"
+            app:showAsAction="never" />
+    </menu>
+    </item>
+
+    <item
         android:id="@+id/action_search"
         android:orderInCategory="100"
         android:icon="@drawable/ic_baseline_search_24"
         android:title="@string/search"
+        android:iconTint="@color/white"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always|collapseActionView">
     </item>
+
 </menu>

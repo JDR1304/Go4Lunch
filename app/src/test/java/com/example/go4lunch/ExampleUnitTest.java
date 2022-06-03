@@ -1,16 +1,27 @@
 package com.example.go4lunch;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import static org.junit.Assert.*;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.go4lunch.model.User;
 import com.example.go4lunch.repository.UserRepository;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -20,36 +31,43 @@ import java.util.List;
 @RunWith(JUnit4.class)
 public class ExampleUnitTest {
 
-    UserRepository userRepository;
-    List<User> users;
+
+    MainActivityViewModel mainActivityViewModelMock = mock(MainActivityViewModel.class);
+    List<User> users = new ArrayList<>();
+    MutableLiveData<List<User>> listLiveData;
+
 
     @Before
     public void setup() {
-        userRepository = UserRepository.getInstance();
-        users = userRepository.getUsersList().getValue();
-    }
+        if (listLiveData == null) {
+            listLiveData = new MutableLiveData<>();
+        }
+        users.add(new User("123456789", "jerome.diaz-rey@coppernic.fr", "jerome Diaz",
+                null, "restaurantPlaceId", "Villa divina"));
 
-    @Test
-    public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+        //listLiveData.postValue(users);
+
     }
 
     @Test
     public void getUsers() {
-        UserRepository userRepository = UserRepository.getInstance();
-        List<User> user = userRepository.getUsersList().getValue();
-        assertEquals(4, 2 + 2);
+        when(mainActivityViewModelMock.getUsers()).thenReturn(listLiveData);
+        List<User> userList = mainActivityViewModelMock.getUsers().getValue();
+        assertEquals(userList, listLiveData.getValue());
     }
 
     @Test
     public void getCurrentUserUid() {
-        String userUID = userRepository.getCurrentUserUID();
-        for (int i = 0; i < users.size(); i++) {
-            if (users.get(i).getUid().equals(userUID)) {
-                assertEquals(users.get(i).getUid(), userUID);
-            }
-        }
-        assertEquals(4, 2 + 2);
+        when(mainActivityViewModelMock.getCurrentUserUid()).thenReturn("currentUID");
+        assertEquals(mainActivityViewModelMock.getCurrentUserUid(), "currentUID");
+
+    }
+
+    @Test
+    public void getCurrentUserName() {
+        when(mainActivityViewModelMock.getCurrentUserName()).thenReturn("Jerome");
+        assertEquals(mainActivityViewModelMock.getCurrentUserName(), "Jerome");
+
     }
 }
 

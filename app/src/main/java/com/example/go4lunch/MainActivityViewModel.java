@@ -23,9 +23,9 @@ import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
 
-    public String apiKey;
-
     public WorkManager workManager;
+
+    public MutableLiveData<String> sortingType;
 
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
@@ -46,7 +46,7 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public LiveData<List<Result>> getRestaurants() {
-        return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), BuildConfig.API_KEY);
+        return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), BuildConfig.ApiKey);
     }
 
 
@@ -116,15 +116,9 @@ public class MainActivityViewModel extends ViewModel {
         return establishmentPrediction;
     }
 
-    /*// Management of the workerManager
-
-    public void getWorkManager(WorkRequest uploadWorkRequest, Context context) {
-        WorkManager.getInstance(context).enqueue(uploadWorkRequest);
-    }*/
-
     // WorkManager and notification
     public void getNotification(Context context) {
-        if (workManager==null){
+        if (workManager == null) {
             workManager = WorkManager.getInstance(context);
         }
         UploadWorker.scheduleWorker(workManager);
@@ -132,11 +126,22 @@ public class MainActivityViewModel extends ViewModel {
 
 
     public void cancelNotification(Context context) {
-        if (workManager==null){
+        if (workManager == null) {
             workManager = WorkManager.getInstance(context);
         }
         workManager.cancelAllWorkByTag("WORKER_ID");
-        //workManager.cancelWorkById("WORKER_ID");
     }
+
+    public void setSortingType(String typeOfSorting) {
+        if (sortingType==null){
+            sortingType = new MutableLiveData<>();
+        }
+        sortingType.postValue(typeOfSorting);
+    }
+
+    public LiveData<String>  getSortingType(){
+        return sortingType;
+    }
+
 }
 
