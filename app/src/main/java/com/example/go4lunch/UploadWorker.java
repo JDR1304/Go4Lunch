@@ -13,16 +13,13 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.model.User;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -77,7 +74,7 @@ public class UploadWorker extends Worker {
         workManager.enqueueUniqueWork(WORKER_ID, ExistingWorkPolicy.REPLACE, uploadWorkRequest);
     }
 
-    public long getTimeDuration() {
+    public static long getTimeDuration() {
         long hours;
         long minutes;
         long delay;

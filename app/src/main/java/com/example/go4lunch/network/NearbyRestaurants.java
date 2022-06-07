@@ -6,9 +6,6 @@ import android.location.Location;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.compose.ui.text.platform.AndroidParagraphIntrinsics;
-
-import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.modelApiNearby.Restaurant;
 
 import java.lang.ref.WeakReference;

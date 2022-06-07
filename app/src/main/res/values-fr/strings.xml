@@ -48,6 +48,8 @@
     <string name="channel_description">channel description</string>
     <string name="not_decided">n\'a pas décidé</string>
     <string name="eat_at">déjeune chez</string>
-
-
+    <string name="title_restaurant_details">Restaurant détails</string>
+    <string name="sort_by_stars">Trié par étoile</string>
+    <string name="sort_by_distance">Trié par distance</string>
+    <string name="all_restaurants">Restaurants</string>
 </resources>

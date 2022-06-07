@@ -16,13 +16,18 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -48,14 +53,14 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     private static final int DEFAULT_ZOOM = 14;
     private Location location;
     private String placeId;
-    private List <Result> restaurants = new ArrayList<>();
-    private Marker marker;
+    private List<Result> restaurants = new ArrayList<>();
     private MapViewFragmentDirections.ActionNavigationMapViewToNavigationRestaurantDetails action;
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -70,7 +75,8 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         super.onViewCreated(view, savedInstanceState);
         mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.map);
-        mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        //mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        configureViewModel();
         mainActivityViewModel.getLocation().observe(this, new Observer<Location>() {
             @Override
             public void onChanged(Location location) {
@@ -79,18 +85,11 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
 
             }
         });
-        /*getRestaurant();
-        getRestaurantFromFirestore();
-        getPredictionEstablishment();*/
-
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        getRestaurant();
-        getPredictionEstablishment();
-        getRestaurantFromFirestore();
         mMap = googleMap;
         mMap.setMyLocationEnabled(true);
         mMap.setOnMyLocationButtonClickListener(this);
@@ -99,16 +98,15 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
+        getRestaurant();
+        getPredictionEstablishment();
+        getRestaurantFromFirestore();
 
+    }
 
-        LatLng southWest = new LatLng(location.getLatitude() - 0.015, location.getLongitude()-0.0145);
-        LatLng northEast = new LatLng(location.getLatitude() + 0.015, location.getLongitude() + 0.0145);
-
-        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                .position(southWest));
-        mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE))
-                .position(northEast));
-
+    private void configureViewModel() {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
+        this.mainActivityViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
     }
 
     public void getRestaurant() {
@@ -150,6 +148,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         Observer<List<Restaurant>> restaurants = new Observer<List<Restaurant>>() {
             @Override
             public void onChanged(List<Restaurant> restaurantList) {
+                getRestaurant();
                 if (restaurantList != null) {
                     for (int i = 0; i < restaurantList.size(); i++) {
                         LatLng restaurantPosition = new LatLng(restaurantList.get(i).getGeometry().getLocation().getLat(), restaurantList.get(i).getGeometry().getLocation().getLng());
@@ -173,9 +172,9 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
                 Log.e(TAG, "onChanged: MapFragment" + predictions);
                 if (predictions.size() > 0) {
                     mMap.clear();
-                    for (int i = 0; i<predictions.size(); i++){
-                        for (int j =0; j<restaurants.size(); j++){
-                            if (predictions.get(i).equals(restaurants.get(j).getName())){
+                    for (int i = 0; i < predictions.size(); i++) {
+                        for (int j = 0; j < restaurants.size(); j++) {
+                            if (predictions.get(i).equals(restaurants.get(j).getName())) {
                                 LatLng restaurantPosition = new LatLng(restaurants.get(j).getGeometry().getLocation().getLat(), restaurants.get(j).getGeometry().getLocation().getLng());
                                 mMap.addMarker(new MarkerOptions()
                                         .position(restaurantPosition).title(restaurants.get(j).getName()));
@@ -207,16 +206,13 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
     @Override
     public void onResume() {
         super.onResume();
-        getRestaurant();
-        getPredictionEstablishment();
-        getRestaurantFromFirestore();
 
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //marker.remove();
+
     }
 }
 

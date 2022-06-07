@@ -5,7 +5,6 @@ import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
@@ -14,21 +13,16 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 
-import android.app.DatePickerDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -38,15 +32,12 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,9 +45,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
-import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.model.User;
-import com.example.go4lunch.modelApiNearby.Result;
+import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.repository.UserRepository;
 import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
@@ -81,10 +71,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -130,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
-
+        //mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        configureViewModel();
         updateGps();
         configureToolbar();
         getRestaurantBookedByUser();
@@ -146,6 +134,11 @@ public class MainActivity extends AppCompatActivity {
         checkIfUserLogged();
         updateGps();
 
+    }
+
+    private void configureViewModel() {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
+        this.mainActivityViewModel = ViewModelProviders.of(this, viewModelFactory).get(MainActivityViewModel.class);
     }
 
     private void checkIfUserLogged() {
@@ -261,29 +254,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return super.onOptionsItemSelected(item);
-        /*NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-
-        switch (item.getItemId()) {
-
-            case R.id.sort_by_distance:
-                mainActivityViewModel.setSortingType("SORT BY DISTANCE");
-                Toast.makeText(this, "distance ", Toast.LENGTH_SHORT).show();
-                return true;
-
-            case R.id.sort_by_stars:
-                Toast.makeText(this, "stars ", Toast.LENGTH_SHORT).show();
-                mainActivityViewModel.setSortingType("SORT BY STARS");
-
-                return true;
-
-            case R.id.all_restaurants:
-                mainActivityViewModel.setSortingType("ALL RESTAURANTS");
-                Toast.makeText(this, "Restaurants", Toast.LENGTH_SHORT).show();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
-        }*/
     }
 
     private void uiBottomNavigation() {

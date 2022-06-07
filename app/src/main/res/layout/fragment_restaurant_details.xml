@@ -86,6 +86,8 @@
                         android:id="@+id/restaurant_details_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:padding="5dp"
                         android:text="restaurant_name"
                         android:textSize="20dp"

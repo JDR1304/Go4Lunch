@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +34,8 @@ import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentListViewBinding;
+import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -77,6 +80,7 @@ public class ListViewFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
         MenuItem filterButton = menu.findItem(R.id.filter);
         filterButton.setVisible(true);
+        toolbar.setTitle(null);
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -84,32 +88,11 @@ public class ListViewFragment extends Fragment {
         binding = FragmentListViewBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         recyclerView = binding.fragmentListviewRecyclerview;
-        mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
-
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.sort_by_distance:
-                        sortRestaurantByDistance();
-                        return true;
-
-                    case R.id.sort_by_stars:
-                        sortRestaurantByStars();
-                        return true;
-
-                    case R.id.all_restaurants:
-                        getRestaurants();
-                        return true;
-                }
-                return false;
-
-            }
-        });
+       // mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        configureViewModel();
+        getToolbar();
         return root;
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -126,9 +109,16 @@ public class ListViewFragment extends Fragment {
 
     }
 
+    private void configureViewModel() {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
+        this.mainActivityViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
+
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void getRestaurants() {
         // Get Users From Random API
+        restaurants.clear();
         Observer<List<Result>> results = new Observer<List<Result>>() {
             @Override
             public void onChanged(List<Result> results) {
@@ -199,6 +189,26 @@ public class ListViewFragment extends Fragment {
         mainActivityViewModel.getRestaurantListFromFirestore().observe(this, restaurants);
     }
 
+    public void getToolbar() {
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.sort_by_distance:
+                        sortRestaurantByDistance();
+                        return true;
+
+                    case R.id.sort_by_stars:
+                        sortRestaurantByStars();
+                        return true;
+
+                }
+                return false;
+            }
+        });
+    }
+
     public void sortRestaurantByDistance() {
         List<Integer> distance = new ArrayList<>();
         // je récupère les distances des restaurants dans une liste nommée distance
@@ -237,32 +247,9 @@ public class ListViewFragment extends Fragment {
     @SuppressLint("NotifyDataSetChanged")
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void sortRestaurantByStars() {
-        List<Result> updateList = new ArrayList<>();
-        updateList.addAll(restaurants);
-        restaurants.clear();
-        updateList.sort(Comparator.comparing(Result::getRating));
-        restaurants.addAll(updateList);
+        restaurants.sort(Comparator.comparing(Result::getRating));
+        Collections.reverse(restaurants);
         listViewRecyclerViewAdapter.notifyDataSetChanged();
-
-        /*mainActivityViewModel.getSortingType().observe(this, sorting);
-            restaurants.sort(Comparator.comparing(Result::getRating));
-            for (int i =0; i<restaurants.size(); i++){
-                Log.e(TAG, "sortRestaurantByStars: "+ restaurants.get(i).getName() + " " +
-                        restaurants.get(i).getRating() );
-            }*/
-
-        // listViewRecyclerViewAdapter.notifyDataSetChanged();
-
-
-
-        /*for (int i = 0; i < restaurants.size(); i++) {
-            if (restaurants.get(i).getRating() != null) {
-                rating.add(restaurants.get(i).getRating());
-                Log.e(TAG, "sortRestaurantByStars: " + restaurants.get(i).getRating());
-            }
-        }
-        Collections.sort(rating);
-        Log.e(TAG, "sortRestaurantByStars sorted: " + rating);*/
     }
 
     @Override

@@ -14,19 +14,14 @@
         <item
             android:id="@+id/sort_by_distance"
             android:orderInCategory="100"
-            android:title="Sort by distance"
+            android:title="@string/sort_by_distance"
             app:showAsAction="never" />
         <item
             android:id="@+id/sort_by_stars"
             android:orderInCategory="100"
-            android:title="Sort by stars"
+            android:title="@string/sort_by_stars"
             app:showAsAction="never" />
 
-        <item
-            android:id="@+id/all_restaurants"
-            android:orderInCategory="100"
-            android:title="All restaurants"
-            app:showAsAction="never" />
     </menu>
     </item>
 

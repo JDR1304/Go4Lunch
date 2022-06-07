@@ -12,9 +12,12 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,6 +35,8 @@ import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.UploadWorker;
+import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.model.User;
 import com.example.go4lunch.modelApiNearby.Result;
@@ -86,8 +91,6 @@ public class RestaurantDetailsFragment extends Fragment {
     private RecyclerView recyclerView;
     private WorkmatesRecyclerViewAdapter workmatesRecyclerViewAdapter;
 
-    private List<String> usersWhoJoinRestaurantByName;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,23 +98,12 @@ public class RestaurantDetailsFragment extends Fragment {
         if (getArguments() != null && getArguments().containsKey(PLACE_ID)) {
             placeId = getArguments().getString(PLACE_ID);
         }
-        mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        //mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        configureViewModel();
         currentUserUid = mainActivityViewModel.getCurrentUserUid();
         getRestaurantFromFirestore(placeId);
         checkIfCurrentUserChoseRestaurant(placeId);
         displayUsersWhoJoinRestaurant(placeId);
-        //getCurrentUser(currentUserUid);
-
-        /*
-        Je récupere l'argument place_Id qui me permet d'identifier le restaurant que je souhaite afficher
-        Pour rappel les points d'entrées sont les quatre suivants:
-                    - Depuis le drawer en cliquant sur Lunch affiche un resto si le current user en à choisit un.
-                      Le Floating bouton doit être en vert.
-                    - Depuis MapView en cliquant sur un marker.
-                    - Depuis ListView en cliquant sur un item de la liste
-                    - Depuis WorkmateList en cliquant sur un User de la liste
-         */
-
 
     }
 
@@ -146,6 +138,10 @@ public class RestaurantDetailsFragment extends Fragment {
 
     }
 
+    private void configureViewModel() {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
+        this.mainActivityViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
+    }
     //--------------------------------init View from api-------------------------------------------------------
 
     // initialisation de la vue

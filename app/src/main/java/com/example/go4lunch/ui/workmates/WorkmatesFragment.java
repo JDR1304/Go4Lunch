@@ -8,9 +8,12 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,6 +22,8 @@ import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentWorkmatesBinding;
+import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.model.User;
 import java.util.List;
 
@@ -32,13 +37,18 @@ public class WorkmatesFragment extends Fragment {
     private WorkmatesRecyclerViewAdapter workmatesRecyclerViewAdapter;
     private WorkmatesFragmentDirections.ActionNavigationWorkmatesToRestaurantDetails action;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         recyclerView = binding.fragmentWorkmatesRecyclerview;
-        mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        //mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
+        configureViewModel();
         return root;
     }
 
@@ -66,6 +76,10 @@ public class WorkmatesFragment extends Fragment {
         mainActivityViewModel.getUsers().observe(this, users);
     }
 
+    private void configureViewModel() {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
+        this.mainActivityViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
+    }
 
     @Override
     public void onDestroyView() {

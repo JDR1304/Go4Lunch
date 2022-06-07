@@ -2,6 +2,7 @@ package com.example.go4lunch.datasource;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 

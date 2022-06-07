@@ -48,6 +48,10 @@
     <string name="channel_description">channel description</string>
     <string name="not_decided">hasn\'t decided yet</string>
     <string name="eat_at">eating at</string>
+    <string name="title_restaurant_details">Restaurant details</string>
+    <string name="sort_by_stars">Sort by stars</string>
+    <string name="sort_by_distance">Sort by distance</string>
+    <string name="all_restaurants">All restaurants</string>
 
 
 </resources>

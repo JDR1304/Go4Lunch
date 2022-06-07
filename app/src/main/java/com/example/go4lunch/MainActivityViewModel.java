@@ -1,11 +1,8 @@
 package com.example.go4lunch;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.location.Location;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -23,6 +20,17 @@ import java.util.List;
 
 public class MainActivityViewModel extends ViewModel {
 
+    private UserRepository userRepository;
+    private RestaurantRepository restaurantRepository;
+    private FetchRestaurantInGoogleAPI fetchRestaurantInGoogleAPI;
+
+    public MainActivityViewModel(UserRepository userRepository, RestaurantRepository restaurantRepository,
+                                 FetchRestaurantInGoogleAPI fetchRestaurantInGoogleAPI) {
+        this.userRepository = userRepository;
+        this.restaurantRepository = restaurantRepository;
+        this.fetchRestaurantInGoogleAPI = fetchRestaurantInGoogleAPI;
+    }
+
     public WorkManager workManager;
 
     public MutableLiveData<String> sortingType;
@@ -31,12 +39,12 @@ public class MainActivityViewModel extends ViewModel {
 
     public MutableLiveData<List<String>> establishmentPrediction = new MutableLiveData<>();
 
-    private UserRepository userRepository = UserRepository.getInstance();
+    /*private UserRepository userRepository = UserRepository.getInstance();
 
     private RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
 
     public FetchRestaurantInGoogleAPI fetchRestaurantInGoogleAPI = FetchRestaurantInGoogleAPI.getInstance();
-
+*/
     public MutableLiveData<Location> getLocation() {
         return locationLiveData;
     }

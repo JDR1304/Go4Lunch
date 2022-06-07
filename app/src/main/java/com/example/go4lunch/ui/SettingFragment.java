@@ -6,8 +6,11 @@ import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +22,8 @@ import android.widget.Toast;
 
 import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
+import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.ViewModelFactory;
 
 public class SettingFragment extends Fragment {
 
@@ -30,22 +35,16 @@ public class SettingFragment extends Fragment {
     private boolean switchState;
     private SharedPreferences.Editor editor;
 
+    private Toolbar toolbar;
 
-    public SettingFragment() {
-        // Required empty public constructor
-    }
-   /*
-    // TODO: Rename and change types and number of parameters
-    public static SettingFragment newInstance() {
 
-        return ;
-    }*/
+    public SettingFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
-
+        //mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
+        configureViewModel();
     }
 
     @Override
@@ -59,6 +58,11 @@ public class SettingFragment extends Fragment {
         setNotificationSwitch();
         return view;
 
+    }
+
+    private void configureViewModel() {
+        ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
+        this.mainActivityViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
     }
 
     public void initialisation(View view) {
