@@ -9,7 +9,7 @@ import com.example.go4lunch.repository.UserRepository;
 public class Injection {
 
     public static UserRepository userRepositoryDataSource() {
-        return UserRepository.getInstance();
+        return UserRepositoryInjection.userRepositoryDataSource();
     }
 
     public static RestaurantRepository restaurantRepositoryDataSource() {

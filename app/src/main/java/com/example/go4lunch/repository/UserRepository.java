@@ -39,11 +39,15 @@ public class UserRepository {
     private MutableLiveData<String> chosenRestaurantByUser;
     private static volatile UserRepository instance;
 
+    private FirebaseFirestore firebaseFirestore;
+    private FirebaseAuth firebaseAuth;
 
-    private UserRepository() {
+    public UserRepository(FirebaseAuth firebaseAuth, FirebaseFirestore firebaseFirestore) {
+        this.firebaseAuth = firebaseAuth;
+        this.firebaseFirestore = firebaseFirestore;
     }
 
-    public static UserRepository getInstance() {
+    /*public static UserRepository getInstance() {
         UserRepository result = instance;
         if (result != null) {
             return result;
@@ -54,11 +58,11 @@ public class UserRepository {
             }
             return instance;
         }
-    }
+    }*/
 
     @Nullable
     public FirebaseUser getCurrentUser() {
-        return FirebaseAuth.getInstance().getCurrentUser();
+        return firebaseAuth.getCurrentUser();
     }
 
     public Boolean isCurrentUserLogged(){return (this.getCurrentUser() != null);
@@ -73,7 +77,7 @@ public class UserRepository {
     }
 
     public CollectionReference getUsersCollection() {
-        return FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
+        return firebaseFirestore.collection(COLLECTION_NAME);
     }
 
     // Create User in Firestore

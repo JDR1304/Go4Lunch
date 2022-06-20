@@ -39,12 +39,6 @@ public class MainActivityViewModel extends ViewModel {
 
     public MutableLiveData<List<String>> establishmentPrediction = new MutableLiveData<>();
 
-    /*private UserRepository userRepository = UserRepository.getInstance();
-
-    private RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
-
-    public FetchRestaurantInGoogleAPI fetchRestaurantInGoogleAPI = FetchRestaurantInGoogleAPI.getInstance();
-*/
     public MutableLiveData<Location> getLocation() {
         return locationLiveData;
     }
@@ -63,22 +57,18 @@ public class MainActivityViewModel extends ViewModel {
         return userRepository.getUsersList();
     }
 
-    public String getCurrentUserUid() {
-        return userRepository.getCurrentUserUID();
-    }
+    public String getCurrentUserUid() { return userRepository.getCurrentUserUID(); }
 
     public String getCurrentUserName() {
         return userRepository.getCurrentUserName();
     }
 
-    public String updatePlaceIdChoseByCurrentUserInFirestore(String placeId) {
+    public void updatePlaceIdChoseByCurrentUserInFirestore(String placeId) {
         userRepository.updatePlaceIdChoseByCurrentUserInFirestore(placeId);
-        return placeId;
     }
 
-    public String updateRestaurantNameChoseByCurrentUserInFirestore(String name) {
+    public void updateRestaurantNameChoseByCurrentUserInFirestore(String name) {
         userRepository.updateRestaurantNameChoseByCurrentUserInFirestore(name);
-        return name;
     }
 
     public LiveData<String> getChosenRestaurantByUserFromFirestore(String userUid) {
@@ -126,9 +116,9 @@ public class MainActivityViewModel extends ViewModel {
 
     // WorkManager and notification
     public void getNotification(Context context) {
-        if (workManager == null) {
+       // if (workManager == null) {
             workManager = WorkManager.getInstance(context);
-        }
+        //}
         UploadWorker.scheduleWorker(workManager);
     }
 

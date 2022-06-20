@@ -46,6 +46,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
 import com.example.go4lunch.injection.Injection;
+import com.example.go4lunch.injection.UserRepositoryInjection;
 import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.repository.UserRepository;
 import com.firebase.ui.auth.AuthUI;
@@ -85,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
     private String placeIdBookedByUser;
 
 
-    //Prediction List
-    MutableLiveData<List<String>> liveDataPredictionEstablishmentList;
-
     //Toolbar custom
     private Toolbar toolbar;
 
@@ -105,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private LocationRequest locationRequest;
 
     //private UserManager userManager = UserManager.getInstance();
-    private UserRepository userRepository = UserRepository.getInstance();
+    private UserRepository userRepository = UserRepositoryInjection.userRepositoryDataSource();
     private FirebaseUser user;
 
 
@@ -118,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        //mainActivityViewModel = new ViewModelProvider(this).get(MainActivityViewModel.class);
         configureViewModel();
         updateGps();
         configureToolbar();

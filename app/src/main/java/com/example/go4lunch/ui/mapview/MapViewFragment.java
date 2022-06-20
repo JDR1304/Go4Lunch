@@ -8,19 +8,13 @@ import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
@@ -98,7 +92,9 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
-        getRestaurant();
+        //getRestaurant();
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getRestaurants().observe(this, restaurantsObserver);
         getPredictionEstablishment();
         getRestaurantFromFirestore();
 
@@ -111,38 +107,39 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
 
     public void getRestaurant() {
         // Get Users From Random API
-        Observer<List<Result>> results = new Observer<List<Result>>() {
-            @Override
-            public void onChanged(List<Result> results) {
-                restaurants.addAll(results);
-                LatLng restaurantPosition;
-                for (int i = 0; i < results.size(); i++) {
-                    restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
-                    mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
-                }
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-                    @Override
-                    public boolean onMarkerClick(Marker arg0) {
-                        for (int i = 0; i < results.size(); i++) {
-                            if (results.get(i).getName().equals(arg0.getTitle())) {
-                                placeId = results.get(i).getPlaceId();
-                            }
-
-                        }
-                        action = MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails();
-                        action.setPlaceId(placeId);
-                        Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main).navigate(action);
-
-                        return true;
-                    }
-
-                });
-            }
-        };
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
-        mainActivityViewModel.getRestaurants().observe(this, results);
+        mainActivityViewModel.getRestaurants().observe(this, restaurantsObserver);
     }
+
+    Observer<List<Result>> restaurantsObserver = new Observer<List<Result>>() {
+        @Override
+        public void onChanged(List<Result> results) {
+            restaurants.addAll(results);
+            LatLng restaurantPosition;
+            for (int i = 0; i < results.size(); i++) {
+                restaurantPosition = new LatLng(results.get(i).getGeometry().getLocation().getLat(), results.get(i).getGeometry().getLocation().getLng());
+                mMap.addMarker(new MarkerOptions().position(restaurantPosition).title(results.get(i).getName()));
+            }
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+                @Override
+                public boolean onMarkerClick(Marker arg0) {
+                    for (int i = 0; i < results.size(); i++) {
+                        if (results.get(i).getName().equals(arg0.getTitle())) {
+                            placeId = results.get(i).getPlaceId();
+                        }
+
+                    }
+                    action = MapViewFragmentDirections.actionNavigationMapViewToNavigationRestaurantDetails();
+                    action.setPlaceId(placeId);
+                    Navigation.findNavController(getActivity(), R.id.nav_host_fragment_content_main).navigate(action);
+
+                    return true;
+                }
+
+            });
+        }
+    };
 
     public void getRestaurantFromFirestore() {
         Observer<List<Restaurant>> restaurants = new Observer<List<Restaurant>>() {

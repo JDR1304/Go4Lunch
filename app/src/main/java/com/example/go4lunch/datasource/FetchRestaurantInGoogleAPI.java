@@ -49,7 +49,8 @@ public class FetchRestaurantInGoogleAPI {
                 @Override
                 public void onResponse(@Nullable Restaurant restaurant) {
                     restaurantsList.postValue(restaurant.getResults());
-                    Log.e(TAG, "onResponse in restaurant Repo: " + restaurant.getResults());
+                    Log.e(TAG, "onResponse in restaurant Repo: " + restaurant.getResults().get(0));
+                    Log.e(TAG, "onResponse in restaurant Repo: " + restaurant.getResults().get(1));
                 }
 
                 @Override

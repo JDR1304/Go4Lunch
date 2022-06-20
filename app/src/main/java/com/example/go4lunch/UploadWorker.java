@@ -16,6 +16,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.go4lunch.injection.UserRepositoryInjection;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;
@@ -28,7 +29,7 @@ public class UploadWorker extends Worker {
     private static String WORKER_ID = "WORKER_ID";
     private final String CHANNEL_ID = "CHANNEL_ID";
     private final int NOTIFICATION_ID = 100;
-    private UserRepository userRepository = UserRepository.getInstance();
+    private UserRepository userRepository = UserRepositoryInjection.userRepositoryDataSource();
     private RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
     private Restaurant restaurant;
 
@@ -42,7 +43,7 @@ public class UploadWorker extends Worker {
     public Result doWork() {
         if (userRepository.getChosenRestaurantIdFromUser(userRepository.getCurrentUserUID())!= null) {
             notification(getRestaurant());
-            Log.e(TAG, "doWork: active the worker " + getRestaurant());
+            Log.e(TAG, "doWork: active the worker " + getRestaurant().getName());
         }
         return Result.success();
     }
@@ -56,7 +57,7 @@ public class UploadWorker extends Worker {
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText((restaurant.getAddress()+"\n"+getUsersWhoJoinRestaurant(restaurant))))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    .setAutoCancel(true)
+                    //.setAutoCancel(true)
                     .build();
 
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
@@ -68,7 +69,7 @@ public class UploadWorker extends Worker {
     public static void scheduleWorker(WorkManager workManager) {
         OneTimeWorkRequest uploadWorkRequest =
                 new OneTimeWorkRequest.Builder(UploadWorker.class)
-                        .setInitialDelay(1, TimeUnit.MINUTES)
+                        .setInitialDelay(0, TimeUnit.MINUTES)
                         .build();
 
         workManager.enqueueUniqueWork(WORKER_ID, ExistingWorkPolicy.REPLACE, uploadWorkRequest);
