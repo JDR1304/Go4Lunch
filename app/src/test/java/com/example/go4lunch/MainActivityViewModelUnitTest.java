@@ -201,8 +201,8 @@ public class MainActivityViewModelUnitTest {
     @Test
     public void createRestaurantInFirestoreTest() {
         Restaurant restaurant = new Restaurant("123", "Mac Donald", "rue du général De Gaulle",
-                "picture", null, null, null,
-                3, null);
+                "picture", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+                3, new Geometry());
 
         when(restaurantRepository.createRestaurant(anyString(), anyString(), anyString(),
                 anyString(), anyList(), anyList(),
