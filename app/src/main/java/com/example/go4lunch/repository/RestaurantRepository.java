@@ -15,6 +15,7 @@ import com.example.go4lunch.modelApiNearby.Geometry;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -38,10 +39,16 @@ public class RestaurantRepository {
     private CollectionReference collectionReference;
     private MutableLiveData <List<String>> usersWhoJoinRestaurant;
 
+    private FirebaseFirestore firebaseFirestore;
+    private FirebaseAuth firebaseAuth;
 
-
-    private RestaurantRepository() {
+    public RestaurantRepository(FirebaseAuth firebaseAuth, FirebaseFirestore firebaseFirestore) {
+        this.firebaseAuth = firebaseAuth;
+        this.firebaseFirestore = firebaseFirestore;
     }
+
+
+/*
 
     public static RestaurantRepository getInstance() {
         RestaurantRepository result = instance;
@@ -55,6 +62,7 @@ public class RestaurantRepository {
             return instance;
         }
     }
+*/
 
     public CollectionReference getRestaurantsCollection() {
         collectionReference = FirebaseFirestore.getInstance().collection(COLLECTION_NAME);

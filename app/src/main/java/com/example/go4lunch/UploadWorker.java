@@ -16,6 +16,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.go4lunch.injection.RestaurantRepositoryInjection;
 import com.example.go4lunch.injection.UserRepositoryInjection;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.repository.RestaurantRepository;
@@ -30,7 +31,7 @@ public class UploadWorker extends Worker {
     private final String CHANNEL_ID = "CHANNEL_ID";
     private final int NOTIFICATION_ID = 100;
     private UserRepository userRepository = UserRepositoryInjection.userRepositoryDataSource();
-    private RestaurantRepository restaurantRepository = RestaurantRepository.getInstance();
+    private RestaurantRepository restaurantRepository = RestaurantRepositoryInjection.RestaurantRepositoryDataSource();
     private Restaurant restaurant;
 
 

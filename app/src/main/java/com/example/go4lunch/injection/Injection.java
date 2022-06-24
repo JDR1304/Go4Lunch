@@ -13,7 +13,7 @@ public class Injection {
     }
 
     public static RestaurantRepository restaurantRepositoryDataSource() {
-        return RestaurantRepository.getInstance();
+        return RestaurantRepositoryInjection.RestaurantRepositoryDataSource();
     }
 
     public static FetchRestaurantInGoogleAPI fetchRestaurantInGoogleAPIDataSource() {

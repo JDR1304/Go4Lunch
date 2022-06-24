@@ -60,9 +60,9 @@ public class UserRepository {
         return AuthUI.getInstance().signOut(context);
     }
 
-    public Task<Void> deleteUser(Context context) {
+   /* public Task<Void> deleteUser(Context context) {
         return AuthUI.getInstance().delete(context);
-    }
+    }*/
 
     public CollectionReference getUsersCollection() {
         return firebaseFirestore.collection(COLLECTION_NAME);
@@ -126,7 +126,7 @@ public class UserRepository {
         }
     }
 
-    // Update User Username
+   /* // Update User Username
     public Task<Void> updateUsername(String username) {
         String uid = this.getCurrentUserUID();
         if (uid != null) {
@@ -134,7 +134,7 @@ public class UserRepository {
         } else {
             return null;
         }
-    }
+    }*/
 
 
     public LiveData <List<User>> getUsersList() {
@@ -161,7 +161,7 @@ public class UserRepository {
         return usersList;
     }
 
-    public LiveData <String> getChosenRestaurantNameFromUser(String userUid){
+   /* public LiveData <String> getChosenRestaurantNameFromUser(String userUid){
         if (chosenRestaurantNameByUser == null) {
             chosenRestaurantNameByUser = new MutableLiveData<>();
         }
@@ -183,7 +183,7 @@ public class UserRepository {
             }
         });
         return chosenRestaurantByUser;
-    }
+    }*/
 
     public LiveData <String> getChosenRestaurantIdFromUser(String userUid){
         if (userUid != null){
@@ -210,12 +210,12 @@ public class UserRepository {
         }
         return chosenRestaurantByUser;
     }
-    // Delete the User from Firestore
+  /*  // Delete the User from Firestore
     public void deleteUserFromFirestore() {
         String uid = this.getCurrentUserUID();
         if (uid != null) {
             this.getUsersCollection().document(uid).delete();
         }
-    }
+    }*/
 
 }
