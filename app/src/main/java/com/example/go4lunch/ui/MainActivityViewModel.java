@@ -1,4 +1,4 @@
-package com.example.go4lunch;
+package com.example.go4lunch.ui;
 
 import android.content.Context;
 import android.location.Location;
@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.work.WorkManager;
 
+import com.example.go4lunch.BuildConfig;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.model.User;
 import com.example.go4lunch.modelApiNearby.Geometry;
@@ -15,6 +16,7 @@ import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.datasource.FetchRestaurantInGoogleAPI;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;
+import com.example.go4lunch.utils.UploadWorker;
 
 import java.util.List;
 
@@ -33,8 +35,6 @@ public class MainActivityViewModel extends ViewModel {
 
     public WorkManager workManager;
 
-    public MutableLiveData<String> sortingType;
-
     public MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
     public MutableLiveData<List<String>> establishmentPrediction = new MutableLiveData<>();
@@ -50,7 +50,6 @@ public class MainActivityViewModel extends ViewModel {
     public LiveData<List<Result>> getRestaurants() {
         return fetchRestaurantInGoogleAPI.getRestaurants(locationLiveData.getValue(), BuildConfig.ApiKey);
     }
-
 
     // Why return LiveData because I don't want change the data outside the viewModel
     public LiveData<List<User>> getUsers() {
@@ -75,9 +74,6 @@ public class MainActivityViewModel extends ViewModel {
         return userRepository.getChosenRestaurantIdFromUser(userUid);
     }
 
-
-//------------------------------------------------------------------------------------------------
-//RestaurantRepository
 
     public Restaurant createRestaurantInFirestore(String uid, String name, String address, String pictureUrl, List<String> usersWhoChoseRestaurantById,
                                                   List<String> usersWhoChoseRestaurantByName, List<String> favoriteRestaurantUsers, int likeNumber, Geometry geometry) {
@@ -116,29 +112,15 @@ public class MainActivityViewModel extends ViewModel {
 
     // WorkManager and notification
     public void getNotification(Context context) {
-       // if (workManager == null) {
-            workManager = WorkManager.getInstance(context);
-        //}
-        UploadWorker.scheduleWorker(workManager);
-    }
-
-
-    public void cancelNotification(Context context) {
         if (workManager == null) {
             workManager = WorkManager.getInstance(context);
         }
-        workManager.cancelAllWorkByTag("WORKER_ID");
+        UploadWorker.scheduleWorker(workManager);
     }
 
-    public void setSortingType(String typeOfSorting) {
-        if (sortingType==null){
-            sortingType = new MutableLiveData<>();
-        }
-        sortingType.postValue(typeOfSorting);
-    }
-
-    public LiveData<String>  getSortingType(){
-        return sortingType;
+    public void cancelNotification() {
+        if(workManager!=null)
+        workManager.cancelAllWorkByTag("WORKER_TAG");
     }
 
 }

@@ -18,7 +18,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 
-import com.example.go4lunch.MainActivityViewModel;
+import com.example.go4lunch.ui.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.injection.Injection;
 import com.example.go4lunch.injection.ViewModelFactory;
@@ -69,7 +69,6 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         super.onViewCreated(view, savedInstanceState);
         mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.map);
-        //mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         configureViewModel();
         mainActivityViewModel.getLocation().observe(this, new Observer<Location>() {
             @Override
@@ -92,9 +91,7 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
         LatLng currentPosition = new LatLng(location.getLatitude(), location.getLongitude());
         mMap.addMarker(new MarkerOptions().position(currentPosition).title("Current position"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, DEFAULT_ZOOM));
-        //getRestaurant();
-        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
-        mainActivityViewModel.getRestaurants().observe(this, restaurantsObserver);
+        getRestaurant();
         getPredictionEstablishment();
         getRestaurantFromFirestore();
 
@@ -107,10 +104,6 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
 
     public void getRestaurant() {
         // Get Users From Random API
-        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
-        mainActivityViewModel.getRestaurants().observe(this, restaurantsObserver);
-    }
-
     Observer<List<Result>> restaurantsObserver = new Observer<List<Result>>() {
         @Override
         public void onChanged(List<Result> results) {
@@ -139,7 +132,12 @@ public class MapViewFragment extends Fragment implements GoogleMap.OnMyLocationB
 
             });
         }
+
     };
+    // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        mainActivityViewModel.getRestaurants().observe(this,restaurantsObserver);
+
+}
 
     public void getRestaurantFromFirestore() {
         Observer<List<Restaurant>> restaurants = new Observer<List<Restaurant>>() {

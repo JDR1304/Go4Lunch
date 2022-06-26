@@ -12,6 +12,7 @@ import retrofit2.http.QueryMap;
 
 public interface NearbyGoogleApi {
 
+    // Request REST from type Get with complement URL
     @GET("place/nearbysearch/json")
     Call<Restaurant> getResults(@QueryMap Map<String, String> params);
 

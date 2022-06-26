@@ -1,4 +1,4 @@
-package com.example.go4lunch;
+package com.example.go4lunch.ui;
 
 import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
 
@@ -11,7 +11,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
@@ -43,6 +42,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.go4lunch.BuildConfig;
+import com.example.go4lunch.R;
 import com.example.go4lunch.databinding.ActivityMainBinding;
 import com.example.go4lunch.databinding.NavHeaderDrawerMainBinding;
 import com.example.go4lunch.injection.Injection;
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
         updateGps();
         configureToolbar();
         getRestaurantBookedByUser();
+
 
 
     }
@@ -233,7 +235,6 @@ public class MainActivity extends AppCompatActivity {
                     return true;
 
                 case R.id.nav_settings:
-                    Toast.makeText(getApplicationContext(), "Settings", Toast.LENGTH_SHORT).show();
                     navDrawerController.navigate(R.id.nav_settings);
                     //This is for closing the drawer after acting on it
                     drawer.closeDrawer(GravityCompat.START);
@@ -356,7 +357,6 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-//-------------------------------------------------------------------------------------------------------------------------------
 
     public void updateGps() {
 
@@ -466,6 +466,5 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(TAG, "Place not found: " + apiException.getStatusCode());
             }
         });
-
     }
 }

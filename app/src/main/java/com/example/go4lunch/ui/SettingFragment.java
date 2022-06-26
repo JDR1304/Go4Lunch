@@ -3,13 +3,10 @@ package com.example.go4lunch.ui;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
-import android.nfc.Tag;
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.view.LayoutInflater;
@@ -20,7 +17,6 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
 import com.example.go4lunch.injection.Injection;
 import com.example.go4lunch.injection.ViewModelFactory;
@@ -43,7 +39,6 @@ public class SettingFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         configureViewModel();
     }
 
@@ -87,7 +82,7 @@ public class SettingFragment extends Fragment {
                     editor.putBoolean("SAVE", false);
                     editor.apply();
                     editor.commit();
-                    mainActivityViewModel.cancelNotification(getActivity());
+                    mainActivityViewModel.cancelNotification();
                     // Par le view model je dois désactiver la notification
                     Toast.makeText(getActivity(), "Settings switch off", Toast.LENGTH_SHORT).show();
                 }

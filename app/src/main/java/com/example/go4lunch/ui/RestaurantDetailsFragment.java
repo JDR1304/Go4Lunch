@@ -12,11 +12,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,10 +28,8 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.go4lunch.BuildConfig;
-import com.example.go4lunch.MainActivityViewModel;
 import com.example.go4lunch.R;
-import com.example.go4lunch.RetrieveIdRestaurant;
-import com.example.go4lunch.UploadWorker;
+import com.example.go4lunch.utils.RetrieveIdRestaurant;
 import com.example.go4lunch.injection.Injection;
 import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.model.Restaurant;
@@ -59,16 +54,12 @@ public class RestaurantDetailsFragment extends Fragment {
     private String placeId;
 
     private Restaurant restaurant;
-    private User currentUser;
-    private List<User> userList;
 
     // Attributes for API
     private Result restaurantResultFromApi;
-    private Restaurant restaurantFromApi;
 
     //Attributes for FireStore
     private String pictureUrl;
-    private Restaurant restaurantDetailsFromFirestore;
     private String userRestaurantIdChosen;
     private String currentUserUid;
 
@@ -98,7 +89,6 @@ public class RestaurantDetailsFragment extends Fragment {
         if (getArguments() != null && getArguments().containsKey(PLACE_ID)) {
             placeId = getArguments().getString(PLACE_ID);
         }
-        //mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         configureViewModel();
         currentUserUid = mainActivityViewModel.getCurrentUserUid();
         getRestaurantFromFirestore(placeId);
@@ -142,7 +132,6 @@ public class RestaurantDetailsFragment extends Fragment {
         ViewModelFactory viewModelFactory = Injection.provideViewModelFactory();
         this.mainActivityViewModel = ViewModelProviders.of(getActivity(), viewModelFactory).get(MainActivityViewModel.class);
     }
-    //--------------------------------init View from api-------------------------------------------------------
 
     // initialisation de la vue
     private void initRestaurant(@NonNull View view) {
@@ -303,7 +292,7 @@ public class RestaurantDetailsFragment extends Fragment {
                     userRestaurantIdChosen = placeId;
                 } else {
                     getButtonWhite();
-                    mainActivityViewModel.cancelNotification(getActivity());
+                    mainActivityViewModel.cancelNotification();
                     if (restaurant.getLikeNumber() > 0 || restaurant.getUsersWhoChoseRestaurantById().size() > 1) {
                         restaurant.getUsersWhoChoseRestaurantById().remove(currentUserUid);
                         restaurant.getUsersWhoChoseRestaurantByName().remove(mainActivityViewModel.getCurrentUserName());

@@ -2,7 +2,6 @@ package com.example.go4lunch.repository;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
 import android.util.Log;
 
 
@@ -15,7 +14,6 @@ import com.example.go4lunch.modelApiNearby.Geometry;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -40,33 +38,16 @@ public class RestaurantRepository {
     private MutableLiveData <List<String>> usersWhoJoinRestaurant;
 
     private FirebaseFirestore firebaseFirestore;
-    private FirebaseAuth firebaseAuth;
 
-    public RestaurantRepository(FirebaseAuth firebaseAuth, FirebaseFirestore firebaseFirestore) {
-        this.firebaseAuth = firebaseAuth;
+
+    public RestaurantRepository(FirebaseFirestore firebaseFirestore) {
         this.firebaseFirestore = firebaseFirestore;
     }
 
 
-/*
-
-    public static RestaurantRepository getInstance() {
-        RestaurantRepository result = instance;
-        if (result != null) {
-            return result;
-        }
-        synchronized (RestaurantRepository.class) {
-            if (instance == null) {
-                instance = new RestaurantRepository();
-            }
-            return instance;
-        }
-    }
-*/
-
     public CollectionReference getRestaurantsCollection() {
-        collectionReference = FirebaseFirestore.getInstance().collection(COLLECTION_NAME);
-        return collectionReference;
+        return firebaseFirestore.collection(COLLECTION_NAME);
+
     }
 
     // Create Restaurant in Firestore

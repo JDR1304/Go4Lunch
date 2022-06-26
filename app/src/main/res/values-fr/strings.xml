@@ -46,7 +46,7 @@
     <string name="search_hint">Nom du restaurant </string>
     <string name="channel_name">notification channel</string>
     <string name="channel_description">channel description</string>
-    <string name="not_decided">n\'a pas décidé</string>
+    <string name="not_decided"> n\'a pas décidé</string>
     <string name="eat_at">déjeune chez</string>
     <string name="title_restaurant_details">Restaurant détails</string>
     <string name="sort_by_stars">Trié par étoile</string>

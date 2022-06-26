@@ -2,6 +2,7 @@ package com.example.go4lunch.repository;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -11,10 +12,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
+import android.net.Uri;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.LiveData;
 
 
+import com.example.go4lunch.model.User;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,6 +29,8 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.model.Document;
 
 import junit.framework.TestCase;
@@ -31,9 +39,21 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import kotlin.jvm.internal.Lambda;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserRepositoryTest extends TestCase {
@@ -59,9 +79,12 @@ public class UserRepositoryTest extends TestCase {
 
     @Test
     public void testGetCurrentUser() {
+        // Arrange
         FirebaseUser firebaseUser = mock(FirebaseUser.class);
         when(firebaseAuth.getCurrentUser()).thenReturn(firebaseUser);
+        // Assert
         assertEquals(userRepository.getCurrentUser(), firebaseUser);
+        // Verify
         verify(firebaseAuth).getCurrentUser();
 
 
@@ -92,6 +115,19 @@ public class UserRepositoryTest extends TestCase {
     }
     @Test
     public void testCreateUser() {
+        // Arrange
+        FirebaseUser firebaseUser = mock(FirebaseUser.class);
+        doReturn(firebaseUser).when(userRepositorySpy).getCurrentUser();
+        when(firebaseUser.getUid()).thenReturn("UID");
+        when(firebaseUser.getEmail()).thenReturn("jerome.diaz@gmail.com");
+        when(firebaseUser.getDisplayName()).thenReturn("jerome Diaz");
+        when(firebaseUser.getPhotoUrl()).thenReturn(Uri.parse("https://picsum.photos/200"));
+        Task taskMock = mock(Task.class);
+        doReturn(taskMock).when(userRepositorySpy).getUserData();
+        // Act
+        userRepositorySpy.createUser();
+        // Assert
+        verify(firebaseUser).getUid();
 
 
     }
@@ -105,6 +141,7 @@ public class UserRepositoryTest extends TestCase {
         String uid = "UID";
         // doReturn allows to return something without checking
         doReturn(uid).when(userRepositorySpy).getCurrentUserUID();
+
         doReturn(collectionRefMock).when(userRepositorySpy).getUsersCollection();
         when(collectionRefMock.document(any())).thenReturn(documentReferenceMock);
         when(documentReferenceMock.get()).thenReturn(taskMock);
@@ -199,9 +236,41 @@ public class UserRepositoryTest extends TestCase {
 
     @Test
     public void testGetUsersList() {
+        // Arrange
+        CollectionReference collectionRefMock = mock(CollectionReference.class);
+        Task taskGetMock = mock(Task.class);
+        doReturn(collectionRefMock).when(userRepositorySpy).getUsersCollection();
+        when(collectionRefMock.get()).thenReturn(taskGetMock);
+        Task completeTaskMock = mock(Task.class);
+        QuerySnapshot querySnapshotMock = mock(QuerySnapshot.class);
+        when(taskGetMock.addOnCompleteListener(any())).thenAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
+            listener = ((OnCompleteListener)invocation.getArgument(0));
+            return completeTaskMock;
+        });
+        when(completeTaskMock.isSuccessful()).thenReturn(true);
+        when(completeTaskMock.getResult()).thenReturn(querySnapshotMock);
+        //
+        //Iterator <QueryDocumentSnapshot> mockIterator = mock(Iterator.class);
+        doCallRealMethod().when(querySnapshotMock).forEach(any(Consumer.class));
+        when((querySnapshotMock).iterator()).thenReturn((Iterator<QueryDocumentSnapshot>) querySnapshotMock);
+        when(((Iterator<QueryDocumentSnapshot>) querySnapshotMock).hasNext()).thenReturn(false);
+       // when(mockIterator.next()).thenReturn(any());
+
+        User userMock = mock(User.class);
+        QueryDocumentSnapshot queryDocumentSnapshotMock = mock(QueryDocumentSnapshot.class);
+        when(queryDocumentSnapshotMock.toObject(any())).thenReturn(userMock);
+        // Act
+        LiveData<List<User>> result = userRepositorySpy.getUsersList();
+        listener.onComplete(completeTaskMock);
+
+
+        // Assert
+        //TODO: Verify that all the functions are called
+        verify(completeTaskMock).isSuccessful();
+
     }
 
-
+    private OnCompleteListener listener;
 
     @Test
     public void testGetChosenRestaurantIdFromUser() {

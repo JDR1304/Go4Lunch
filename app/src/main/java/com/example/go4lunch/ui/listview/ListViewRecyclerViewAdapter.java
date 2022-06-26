@@ -12,19 +12,18 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.go4lunch.MainActivityViewModel;
+import com.example.go4lunch.ui.MainActivityViewModel;
 import com.example.go4lunch.R;
-import com.example.go4lunch.RetrieveIdRestaurant;
+import com.example.go4lunch.utils.RetrieveIdRestaurant;
 import com.example.go4lunch.modelApiNearby.Result;
 
 import java.util.List;
 
 public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRecyclerViewAdapter.ViewHolder>  {
 
-    private static final String RESTAURANT_ID_KEY = "RESTAURANT_ID_KEY";
+
     private List<Result> restaurantList;
     private MainActivityViewModel mainActivityViewModel;
-    private int numberOfCoworker = 4;
     private double rating;
     private RetrieveIdRestaurant listener;
 
@@ -71,14 +70,6 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
             holder.star2.setVisibility(View.VISIBLE);
             holder.star3.setVisibility(View.VISIBLE);
         }
-
-      /*  if (getNumberOfCoworkerWhoChoseRestaurantInFirestore(restaurant.getPlaceId()) > 0) {
-            numberOfCoworker = getNumberOfCoworkerWhoChoseRestaurantInFirestore(restaurant.getPlaceId());
-            holder.coworkerImage.setVisibility(View.VISIBLE);
-            holder.coworkerNumber.setVisibility(View.VISIBLE);
-            holder.coworkerNumber.setText("(" + Integer.toString(numberOfCoworker) + ")");
-
-        }*/
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,18 +120,6 @@ public class ListViewRecyclerViewAdapter extends RecyclerView.Adapter<ListViewRe
         int distance = (int) currentLocation.distanceTo(restaurantLocation);
         return distance;
     }
-
-    /*private int getNumberOfCoworkerWhoChoseRestaurantInFirestore(String placeId) {
-        List<Restaurant> restaurants = mainActivityViewModel.getRestaurantListFromFirestore().getValue();
-        if (restaurants != null) {
-            for (int i = 0; i < restaurants.size(); i++) {
-                if (restaurants.get(i).getUid().equals(placeId)) {
-                    return restaurants.get(i).getUsersWhoChoseRestaurant().size();
-                }
-            }
-        }
-        return 0;
-    }*/
 
     @Override
     public int getItemCount() {

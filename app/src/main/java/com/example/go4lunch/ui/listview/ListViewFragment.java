@@ -3,7 +3,6 @@ package com.example.go4lunch.ui.listview;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,42 +13,32 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.ActionMenuItemView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.go4lunch.MainActivityViewModel;
+import com.example.go4lunch.ui.MainActivityViewModel;
 import com.example.go4lunch.R;
-import com.example.go4lunch.RetrieveIdRestaurant;
+import com.example.go4lunch.utils.RetrieveIdRestaurant;
 import com.example.go4lunch.databinding.FragmentListViewBinding;
 import com.example.go4lunch.injection.Injection;
 import com.example.go4lunch.injection.ViewModelFactory;
 import com.example.go4lunch.model.Restaurant;
 import com.example.go4lunch.modelApiNearby.Result;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-//import com.example.go4lunch.ui.RestaurantDetailsArgs;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class ListViewFragment extends Fragment {
 
@@ -88,12 +77,12 @@ public class ListViewFragment extends Fragment {
         binding = FragmentListViewBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         recyclerView = binding.fragmentListviewRecyclerview;
-       // mainActivityViewModel = new ViewModelProvider(getActivity()).get(MainActivityViewModel.class);
         configureViewModel();
         getToolbar();
         return root;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -128,7 +117,7 @@ public class ListViewFragment extends Fragment {
                     }
                     restaurants.add(results.get(i));
                 }
-                //restaurants.addAll(results);
+
                 listViewRecyclerViewAdapter = new ListViewRecyclerViewAdapter(restaurants, mainActivityViewModel, new RetrieveIdRestaurant() {
 
                     @Override
@@ -214,11 +203,10 @@ public class ListViewFragment extends Fragment {
         // je récupère les distances des restaurants dans une liste nommée distance
         for (int i = 0; i < restaurants.size(); i++) {
             distance.add(getDistance(restaurants.get(i)));
-            Log.e(TAG, "sortRestaurantByDistance: " + getDistance(restaurants.get(i)));
+
         }
         // je tris la liste distance du plus prés au plus loin
         Collections.sort(distance);
-        Log.e(TAG, "sortRestaurantByDistance sorted: " + distance);
         List<Result> restaurantsSorted = new ArrayList<>();
         // je crée une troisième listes dans laquelle je mets les restaurants triés grace à la liste des distance.
         for (int i = 0; i < distance.size(); i++) {
@@ -257,4 +245,5 @@ public class ListViewFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
 }

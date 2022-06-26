@@ -1,13 +1,17 @@
-package com.example.go4lunch;
+package com.example.go4lunch.utils;
 
 import static android.content.ContentValues.TAG;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
+import android.os.Build;
 import android.text.format.Time;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.ExistingWorkPolicy;
@@ -16,6 +20,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.example.go4lunch.R;
 import com.example.go4lunch.injection.RestaurantRepositoryInjection;
 import com.example.go4lunch.injection.UserRepositoryInjection;
 import com.example.go4lunch.model.Restaurant;
@@ -28,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class UploadWorker extends Worker {
 
     private static String WORKER_ID = "WORKER_ID";
-    private final String CHANNEL_ID = "CHANNEL_ID";
+    private final String CHANNEL_ID = "CHANNEL";
     private final int NOTIFICATION_ID = 100;
     private UserRepository userRepository = UserRepositoryInjection.userRepositoryDataSource();
     private RestaurantRepository restaurantRepository = RestaurantRepositoryInjection.RestaurantRepositoryDataSource();
@@ -39,6 +44,7 @@ public class UploadWorker extends Worker {
         super(context, workerParams);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @NonNull
     @Override
     public Result doWork() {
@@ -49,7 +55,13 @@ public class UploadWorker extends Worker {
         return Result.success();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     public void notification(Restaurant restaurant) {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "ShortcutBadger Sample",
+                NotificationManager.IMPORTANCE_DEFAULT);
+
+        notificationManager.createNotificationChannel(channel);
         if (restaurant!=null) {
             Notification builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_baseline_notifications)
@@ -58,10 +70,10 @@ public class UploadWorker extends Worker {
                     .setStyle(new NotificationCompat.BigTextStyle()
                             .bigText((restaurant.getAddress()+"\n"+getUsersWhoJoinRestaurant(restaurant))))
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                    //.setAutoCancel(true)
+                    .setAutoCancel(true)
                     .build();
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+
             // notificationId is a unique int for each notification that you must define
             notificationManager.notify(NOTIFICATION_ID, builder);
         }
@@ -70,7 +82,8 @@ public class UploadWorker extends Worker {
     public static void scheduleWorker(WorkManager workManager) {
         OneTimeWorkRequest uploadWorkRequest =
                 new OneTimeWorkRequest.Builder(UploadWorker.class)
-                        .setInitialDelay(0, TimeUnit.MINUTES)
+                        .setInitialDelay(1, TimeUnit.MINUTES)
+                        .addTag("WORKER_TAG")
                         .build();
 
         workManager.enqueueUniqueWork(WORKER_ID, ExistingWorkPolicy.REPLACE, uploadWorkRequest);
@@ -115,4 +128,5 @@ public class UploadWorker extends Worker {
             }
        return stringBuilder;
     }
+
 }

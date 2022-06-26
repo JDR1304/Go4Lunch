@@ -1,7 +1,6 @@
 package com.example.go4lunch;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -9,24 +8,18 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyListOf;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.compose.runtime.State;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.work.WorkManager;
 
 import com.example.go4lunch.datasource.FetchRestaurantInGoogleAPI;
 import com.example.go4lunch.model.Restaurant;
@@ -35,25 +28,17 @@ import com.example.go4lunch.modelApiNearby.Geometry;
 import com.example.go4lunch.modelApiNearby.Result;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;
-import com.google.android.gms.maps.model.LatLng;
+import com.example.go4lunch.ui.MainActivityViewModel;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.internal.matchers.Any;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.Console;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MainActivityViewModelUnitTest {
@@ -118,7 +103,6 @@ public class MainActivityViewModelUnitTest {
     @Test
     public void getRestaurantsTest() {
         // Arrange
-
         MutableLiveData<List<Result>> resultsLiveData = new MutableLiveData<>();
         resultsLiveData.postValue(results);
         Location location = mainActivityViewModel.locationLiveData.getValue();

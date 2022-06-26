@@ -1,7 +1,5 @@
 package com.example.go4lunch.injection;
 
-import android.content.Context;
-
 import com.example.go4lunch.datasource.FetchRestaurantInGoogleAPI;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;

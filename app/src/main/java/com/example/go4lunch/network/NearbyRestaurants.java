@@ -1,7 +1,5 @@
 package com.example.go4lunch.network;
 
-
-
 import android.location.Location;
 import android.util.Log;
 
@@ -17,8 +15,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class NearbyRestaurants {
-
-
 
     // Creating a callback
     public interface Callbacks {

@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.go4lunch.MainActivityViewModel;
+import com.example.go4lunch.ui.MainActivityViewModel;
 import com.example.go4lunch.datasource.FetchRestaurantInGoogleAPI;
 import com.example.go4lunch.repository.RestaurantRepository;
 import com.example.go4lunch.repository.UserRepository;

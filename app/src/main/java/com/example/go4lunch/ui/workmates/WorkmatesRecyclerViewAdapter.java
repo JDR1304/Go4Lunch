@@ -12,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.example.go4lunch.MainActivityViewModel;
+import com.example.go4lunch.ui.MainActivityViewModel;
 import com.example.go4lunch.R;
-import com.example.go4lunch.RetrieveIdRestaurant;
+import com.example.go4lunch.utils.RetrieveIdRestaurant;
 import com.example.go4lunch.model.User;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
-        holder.workMatesName.setText(user.getName());
+        holder.workMatesName.setText(user.getName()+ " ");
         if (user.getRestaurantName() != null){
             holder.workMatesStatus.setText(" "+goToEat +" " +user.getRestaurantName());
         }
@@ -57,12 +57,9 @@ public class WorkmatesRecyclerViewAdapter extends RecyclerView.Adapter<Workmates
                 .apply(RequestOptions.circleCropTransform())
                 .into(holder.roundView);
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (user.getRestaurantPlaceId() != null) {
-                    listener.onClickItem(user.getRestaurantPlaceId());
-                }
+        holder.itemView.setOnClickListener(v -> {
+            if (user.getRestaurantPlaceId() != null) {
+                listener.onClickItem(user.getRestaurantPlaceId());
             }
         });
 

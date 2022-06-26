@@ -2,7 +2,6 @@ package com.example.go4lunch.datasource;
 
 import static android.content.ContentValues.TAG;
 
-import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
@@ -49,8 +48,6 @@ public class FetchRestaurantInGoogleAPI {
                 @Override
                 public void onResponse(@Nullable Restaurant restaurant) {
                     restaurantsList.postValue(restaurant.getResults());
-                    Log.e(TAG, "onResponse in restaurant Repo: " + restaurant.getResults().get(0));
-                    Log.e(TAG, "onResponse in restaurant Repo: " + restaurant.getResults().get(1));
                 }
 
                 @Override

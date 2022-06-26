@@ -1,11 +1,7 @@
 package com.example.go4lunch.model;
 
-import android.net.Uri;
-
-import androidx.lifecycle.Observer;
-
 import com.example.go4lunch.modelApiNearby.Geometry;
-import com.example.go4lunch.ui.RestaurantDetailsFragment;
+
 
 import java.util.List;
 
