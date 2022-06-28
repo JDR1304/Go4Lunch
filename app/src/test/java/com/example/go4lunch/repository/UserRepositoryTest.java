@@ -235,44 +235,6 @@ public class UserRepositoryTest extends TestCase {
 
 
     @Test
-    public void testGetUsersList() {
-        // Arrange
-        CollectionReference collectionRefMock = mock(CollectionReference.class);
-        Task taskGetMock = mock(Task.class);
-        doReturn(collectionRefMock).when(userRepositorySpy).getUsersCollection();
-        when(collectionRefMock.get()).thenReturn(taskGetMock);
-        Task completeTaskMock = mock(Task.class);
-        QuerySnapshot querySnapshotMock = mock(QuerySnapshot.class);
-        when(taskGetMock.addOnCompleteListener(any())).thenAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            listener = ((OnCompleteListener)invocation.getArgument(0));
-            return completeTaskMock;
-        });
-        when(completeTaskMock.isSuccessful()).thenReturn(true);
-        when(completeTaskMock.getResult()).thenReturn(querySnapshotMock);
-        //
-        //Iterator <QueryDocumentSnapshot> mockIterator = mock(Iterator.class);
-        doCallRealMethod().when(querySnapshotMock).forEach(any(Consumer.class));
-        when((querySnapshotMock).iterator()).thenReturn((Iterator<QueryDocumentSnapshot>) querySnapshotMock);
-        when(((Iterator<QueryDocumentSnapshot>) querySnapshotMock).hasNext()).thenReturn(false);
-       // when(mockIterator.next()).thenReturn(any());
-
-        User userMock = mock(User.class);
-        QueryDocumentSnapshot queryDocumentSnapshotMock = mock(QueryDocumentSnapshot.class);
-        when(queryDocumentSnapshotMock.toObject(any())).thenReturn(userMock);
-        // Act
-        LiveData<List<User>> result = userRepositorySpy.getUsersList();
-        listener.onComplete(completeTaskMock);
-
-
-        // Assert
-        //TODO: Verify that all the functions are called
-        verify(completeTaskMock).isSuccessful();
-
-    }
-
-    private OnCompleteListener listener;
-
-    @Test
     public void testGetChosenRestaurantIdFromUser() {
     }
 

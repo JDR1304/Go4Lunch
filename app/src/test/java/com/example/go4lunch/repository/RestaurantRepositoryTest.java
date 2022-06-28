@@ -1,7 +1,6 @@
 package com.example.go4lunch.repository;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
+
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -11,19 +10,14 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.net.Uri;
-
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.example.go4lunch.model.Restaurant;
-import com.example.go4lunch.modelApiNearby.Geometry;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import junit.framework.TestCase;
@@ -66,33 +60,6 @@ public class RestaurantRepositoryTest extends TestCase {
     }
 
     @Test
-    public void testCreateRestaurant() {
-        // Arrange
-        Restaurant restaurant = new Restaurant("123", "Mac Donald", "rue du général De Gaulle",
-                "picture", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-                3, new Geometry());
-        CollectionReference collectionRefMock = mock(CollectionReference.class);
-        DocumentReference documentReferenceMock = mock(DocumentReference.class);
-        Task taskMock = mock(Task.class);
-        doReturn(collectionRefMock).when(restaurantRepositorySpy).getRestaurantsCollection();
-        when(collectionRefMock.document(any())).thenReturn(documentReferenceMock);
-        when(documentReferenceMock.get()).thenReturn(taskMock);
-
-        when(restaurantRepositorySpy.createRestaurant(anyString(), anyString(), anyString(),
-                anyString(), anyList(), anyList(),
-                anyList(), anyInt(), any(Geometry.class))).thenReturn(restaurant);
-
-        Restaurant restaurantCreated = restaurantRepository.createRestaurant("123", "Mac Donald", "rue du général De Gaulle",
-                "picture", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-                3, new Geometry());
-        /*Task taskDataMock = mock(Task.class);
-        doReturn(taskDataMock).when(restaurantRepositorySpy).getRestaurantData(restaurant.getUid());*/
-        // Act
-        assertEquals(restaurant, restaurantCreated );
-
-    }
-
-    @Test
     public void testGetRestaurantData() {
         // Arrange
         CollectionReference collectionRefMock = mock(CollectionReference.class);
@@ -113,14 +80,6 @@ public class RestaurantRepositoryTest extends TestCase {
         orderVerifier.verify(documentReferenceMock).get();
     }
 
-    public void testGetRestaurantById() {
-    }
-
-    public void testGetUsersWhoJoinRestaurant() {
-    }
-
-    public void testGetRestaurantsList() {
-    }
 
     @Test
     public void testDeleteRestaurantFromFirestore() {
@@ -142,28 +101,6 @@ public class RestaurantRepositoryTest extends TestCase {
         orderVerifier.verify(collectionRefMock).document(uid);
         orderVerifier.verify(documentReferenceMock).delete();
     }
-    @Test
-    public void testLikeIncrement() {
-        String uid = "UID";
-        CollectionReference collectionRefMock = mock(CollectionReference.class);
-        DocumentReference likeIncrementMock = mock(DocumentReference.class);
-        Task taskMock = mock(Task.class);
-        when(collectionRefMock.document(any())).thenReturn(likeIncrementMock);
-        when(likeIncrementMock.update(any())).thenReturn(taskMock);
-        restaurantRepository.likeIncrement(uid);
-        // Atomically increment the like number.
-        //likeIncrement.update(LIKE_NUMBER, FieldValue.increment(1));
-    }
 
-    public void testLikeDecrement() {
-    }
 
-    public void testAddUserIdToRestaurant() {
-    }
-
-    public void testDeleteUserIdToRestaurant() {
-    }
-
-    public void testGetLikeByRestaurant() {
-    }
 }

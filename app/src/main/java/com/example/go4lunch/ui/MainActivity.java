@@ -222,7 +222,8 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 case R.id.restaurant_details:
                     if (placeIdBookedByUser == null) {
-                        Toast.makeText(getApplicationContext(), "No restaurant chosen", Toast.LENGTH_LONG).show();
+                        String noChosenRestaurant = getString(R.string.restaurant_not_chosen);
+                        Toast.makeText(getApplicationContext(), noChosenRestaurant, Toast.LENGTH_LONG).show();
                     } else {
                         Bundle bundle = new Bundle();
                         bundle.putString("place_id", placeIdBookedByUser);

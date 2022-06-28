@@ -290,13 +290,6 @@ public class MainActivityViewModelUnitTest {
 
     }
 
-    // WorkManager and notification
-    public void getNotificationTest() {
-        // if (workManager == null) {
-        // workManager = WorkManager.getInstance(context);
-        //}
-        //UploadWorker.scheduleWorker(workManager);
-    }
 
 
 }

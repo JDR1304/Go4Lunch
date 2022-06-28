@@ -82,7 +82,7 @@ public class UploadWorker extends Worker {
     public static void scheduleWorker(WorkManager workManager) {
         OneTimeWorkRequest uploadWorkRequest =
                 new OneTimeWorkRequest.Builder(UploadWorker.class)
-                        .setInitialDelay(1, TimeUnit.MINUTES)
+                        .setInitialDelay(getTimeDuration(), TimeUnit.MINUTES)
                         .addTag("WORKER_TAG")
                         .build();
 

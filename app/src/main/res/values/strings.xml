@@ -52,6 +52,7 @@
     <string name="sort_by_stars">Sort by stars</string>
     <string name="sort_by_distance">Sort by distance</string>
     <string name="all_restaurants">All restaurants</string>
+    <string name="restaurant_not_chosen">No restaurant chosen</string>
 
 
 </resources>
